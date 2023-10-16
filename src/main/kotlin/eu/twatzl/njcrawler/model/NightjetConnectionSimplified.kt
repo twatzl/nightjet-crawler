@@ -1,16 +1,17 @@
-package eu.twatzl.njcrawler
+package eu.twatzl.njcrawler.model
 
-import java.time.OffsetDateTime
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 
 /**
  * simplified class that is used to print to combined csv file
  */
-data class OebbNightjetConnectionSimplified(
+data class NightjetConnectionSimplified(
     val trainId: String,
     val departureStationName: String,
     val arrivalStationName: String,
-    val departure: OffsetDateTime,
-    val arrival: OffsetDateTime,
+    val departure: Instant,
+    val arrival: Instant,
     val seatingOffer: Float?,
     val couchetteOffer: Float?,
     val sleeperOffer: Float?,

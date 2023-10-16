@@ -1,5 +1,8 @@
-package eu.twatzl.njcrawler
+package eu.twatzl.njcrawler.model.oebb
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class OebbAccessToken(
     val access_token: String,
     val expires_in: Int,
