@@ -10,6 +10,8 @@ import eu.twatzl.njcrawler.util.getFormattedTime
 import eu.twatzl.njcrawler.util.getTimezone
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
+import kotlinx.datetime.toDatePeriod
+import kotlinx.datetime.toInstant
 import java.io.FileOutputStream
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -24,15 +26,13 @@ class NightjetPersistenceService {
         val t = getCurrentTime()
         val formattedDate = getFormattedDate(t)
         val formattedTime = getFormattedTime(t)
-        val dirPath = Paths.get(".\\data\\offers\\")
-        val path = dirPath.resolve(formattedDate)
-
-        if (!dirPath.exists()) {
-            dirPath.createDirectories()
+        // assemble path append ISO datestamp (e.g. 2023-10-17)
+        val outDir = Paths.get(".").resolve("data").resolve(formattedDate).resolve("offers")
+        // create output directory if not exists
+        if (!outDir.exists()) {
+            outDir.createDirectories()
         }
-
-        val file = path.resolve("${formattedTime}_${train.trainId}.csv").toFile()
-
+        val file = outDir.resolve("${formattedTime}_${train.trainId}.csv").toFile()
         val fos = FileOutputStream(file).apply { csvService.writeCsv(this, connections) }
         fos.flush()
         fos.close()
@@ -95,12 +95,15 @@ class NightjetPersistenceService {
         val trains = connections.keys.sorted()
         val origins = trains.map { connections[it]?.first()?.departureStationName }
         val destinations = trains.map { connections[it]?.first()?.arrivalStationName }
-
-        val dirPath = Paths.get(".\\data\\combined\\occupation\\")
-        dirPath.createDirectories()
-        val path = dirPath.resolve("combined_occupation_$date.csv")
+        val t = getCurrentTime()
+        val formattedDate = getFormattedDate(t)
+        val outDir = Paths.get(".").resolve("data").resolve(formattedDate).resolve("combined")
+        // create output directory if not exists
+        if (!outDir.exists()) {
+            outDir.createDirectories()
+        }
+        val path = outDir.resolve("combined_occupation_${formattedDate}.csv")
         val writer = path.toFile().bufferedWriter()
-
         writer.write(trains.joinToString { it })
         writer.newLine()
         writer.write(origins.joinToString { it ?: "" })
