@@ -39,8 +39,10 @@ class NightjetPersistenceService {
      */
     fun loadAndCombineNightjetOccupationData(
         dataPath: Path,
+        timestamp: String = formattedTime,  // unless specified otherwise, use this classes timestamp
+        datestamp: String = formattedDate
     ) {
-        val csvFiles = dataPath.listDirectoryEntries("*.csv")
+        val csvFiles = dataPath.listDirectoryEntries("$timestamp*.csv")
 
         val connections = mutableMapOf<String, List<NightjetConnectionSimplified>>()
 
@@ -53,7 +55,7 @@ class NightjetPersistenceService {
             }
         }
 
-        writeCombinedNightjetOccupationCsvInternal(connections)
+        writeCombinedNightjetOccupationCsvInternal(connections, timestamp, datestamp)
     }
 
     fun writeCombinedNightjetOccupationCsv(
@@ -73,6 +75,8 @@ class NightjetPersistenceService {
 
     private fun writeCombinedNightjetOccupationCsvInternal(
         connections: Map<String, List<NightjetConnectionSimplified>>,
+        timestamp: String = formattedTime,
+        datestamp: String = formattedDate,
     ) {
         val departureDates = connections.values.map { connectionList ->
             val departureTimes = connectionList.map { it.departure }
@@ -86,11 +90,11 @@ class NightjetPersistenceService {
         val trains = connections.keys.sorted()
         val origins = trains.map { connections[it]?.first()?.departureStationName }
         val destinations = trains.map { connections[it]?.first()?.arrivalStationName }
-        val outDir = Paths.get(".").resolve("data").resolve(formattedDate).resolve("combined")
+        val outDir = Paths.get(".").resolve("data").resolve(datestamp).resolve("combined")
         if (!outDir.exists()) {
             outDir.createDirectories()
         }
-        val path = outDir.resolve("${formattedTime}_combined_occupation.csv")
+        val path = outDir.resolve("${timestamp}_combined_occupation.csv")
         val writer = path.toFile().bufferedWriter()
         writer.write("Train, ${trains.joinToString { it }}")
         writer.newLine()
