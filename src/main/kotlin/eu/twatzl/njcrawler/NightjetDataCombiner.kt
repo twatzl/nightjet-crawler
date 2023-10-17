@@ -1,7 +1,7 @@
 package eu.twatzl.njcrawler
 
 import eu.twatzl.njcrawler.service.NightjetPersistenceService
-import java.nio.file.Paths
+import kotlin.io.path.Path
 
 /**
  * Reads multiple connection csv files and combines them into a single csv file.
@@ -10,9 +10,9 @@ import java.nio.file.Paths
  * results by default. Please adjust the timestamp for which you want to combine the csv files before use.
  */
 fun main(vararg args: String) {
-    val timestamp = "2023-10-17_23-48"
+    val timestamp = "2023-10-18_00-16"
     val datestamp = timestamp.split('_')[0]
-    val dataPath = Paths.get(".").resolve("data").resolve(datestamp).resolve("offers")
+    val dataPath = Path(".").resolve("data").resolve(datestamp).resolve("offers")
     NightjetPersistenceService().loadAndCombineNightjetOccupationData(dataPath, timestamp, datestamp)
 }
 

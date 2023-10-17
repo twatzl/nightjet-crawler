@@ -12,7 +12,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
 import java.io.FileOutputStream
 import java.nio.file.Path
-import java.nio.file.Paths
+import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
@@ -24,7 +24,7 @@ class NightjetPersistenceService {
     private val formattedTime = getFormattedTime(currentTime)  // timestamp (e.g. "2023-10-17_21-15" for time 21:15)
 
     fun writeNightjetOffersForTrainToCSV(train: TrainConnection, connections: List<NightjetConnectionWithMetadata>) {
-        val outDir = Paths.get(".").resolve("data").resolve(formattedDate).resolve("offers")
+        val outDir = Path(".").resolve("data").resolve(formattedDate).resolve("offers")
         if (!outDir.exists()) {
             outDir.createDirectories()
         }
@@ -76,7 +76,7 @@ class NightjetPersistenceService {
     private fun writeCombinedNightjetOccupationCsvInternal(
         connections: Map<String, List<NightjetConnectionSimplified>>,
         timestamp: String = formattedTime,
-        datestamp: String = formattedDate,
+        date: String = formattedDate,
     ) {
         val departureDates = connections.values.map { connectionList ->
             val departureTimes = connectionList.map { it.departure }
@@ -90,7 +90,7 @@ class NightjetPersistenceService {
         val trains = connections.keys.sorted()
         val origins = trains.map { connections[it]?.first()?.departureStationName }
         val destinations = trains.map { connections[it]?.first()?.arrivalStationName }
-        val outDir = Paths.get(".").resolve("data").resolve(datestamp).resolve("combined")
+        val outDir = Path(".").resolve("data").resolve(date).resolve("combined")
         if (!outDir.exists()) {
             outDir.createDirectories()
         }
@@ -105,10 +105,10 @@ class NightjetPersistenceService {
 
         var curDate = firstDepartureDate
         while (curDate < lastDepartureDate) {
-            val datestamp = getFormattedDate(curDate)  // do not include departure time, just date
+            val date = getFormattedDate(curDate)  // do not include departure time, just date
             val offers = trains.map { train ->
                 val conn = connections[train]?.find {
-                    getFormattedDate(it.departure) == datestamp  // compare based on date, not exact timestamp
+                    getFormattedDate(it.departure) == date  // compare based on date, not exact timestamp
                 }
 
                 if (conn != null) {
@@ -125,7 +125,7 @@ class NightjetPersistenceService {
                     ""
                 }
             }
-            writer.write("$datestamp, ")
+            writer.write("$date, ")
             writer.write(offers.joinToString { it })
             writer.newLine()
 
