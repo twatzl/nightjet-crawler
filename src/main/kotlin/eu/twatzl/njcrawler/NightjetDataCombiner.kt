@@ -1,7 +1,6 @@
 package eu.twatzl.njcrawler
 
 import eu.twatzl.njcrawler.service.NightjetPersistenceService
-import eu.twatzl.njcrawler.util.getFormattedDate
 import java.nio.file.Paths
 
 /**
