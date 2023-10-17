@@ -10,8 +10,6 @@ import eu.twatzl.njcrawler.util.getFormattedTime
 import eu.twatzl.njcrawler.util.getTimezone
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
-import kotlinx.datetime.toDatePeriod
-import kotlinx.datetime.toInstant
 import java.io.FileOutputStream
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -26,7 +24,7 @@ class NightjetPersistenceService {
         val t = getCurrentTime()
         val formattedDate = getFormattedDate(t)
         val formattedTime = getFormattedTime(t)
-        // assemble path append ISO datestamp (e.g. 2023-10-17)
+        // assemble path including an ISO datestamp of current date (e.g. "2023-10-17")
         val outDir = Paths.get(".").resolve("data").resolve(formattedDate).resolve("offers")
         // create output directory if not exists
         if (!outDir.exists()) {
@@ -97,6 +95,7 @@ class NightjetPersistenceService {
         val destinations = trains.map { connections[it]?.first()?.arrivalStationName }
         val t = getCurrentTime()
         val formattedDate = getFormattedDate(t)
+        // assemble path including an ISO datestamp of current date (e.g. "2023-10-17")
         val outDir = Paths.get(".").resolve("data").resolve(formattedDate).resolve("combined")
         // create output directory if not exists
         if (!outDir.exists()) {
