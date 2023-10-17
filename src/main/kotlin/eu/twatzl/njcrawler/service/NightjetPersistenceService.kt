@@ -92,18 +92,19 @@ class NightjetPersistenceService {
         }
         val path = outDir.resolve("${formattedTime}_combined_occupation.csv")
         val writer = path.toFile().bufferedWriter()
-        writer.write("Train,${trains.joinToString { it }}")
+        writer.write("Train, ${trains.joinToString { it }}")
         writer.newLine()
-        writer.write("Origin,${origins.joinToString { it ?: "" }}")
+        writer.write("Origin, ${origins.joinToString { it ?: "" }}")
         writer.newLine()
-        writer.write("Destination,${destinations.joinToString { it ?: "" }}")
+        writer.write("Destination, ${destinations.joinToString { it ?: "" }}")
         writer.newLine()
 
         var curDate = firstDepartureDate
         while (curDate < lastDepartureDate) {
+            val datestamp = getFormattedDate(curDate)  // do not include departure time, just date
             val offers = trains.map { train ->
                 val conn = connections[train]?.find {
-                    it.departure == curDate
+                    getFormattedDate(it.departure) == datestamp  // compare based on date, not exact timestamp
                 }
 
                 if (conn != null) {
@@ -120,8 +121,7 @@ class NightjetPersistenceService {
                     ""
                 }
             }
-
-            writer.write("$curDate, ")
+            writer.write("$datestamp, ")
             writer.write(offers.joinToString { it })
             writer.newLine()
 

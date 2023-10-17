@@ -1,17 +1,17 @@
 package eu.twatzl.njcrawler
 
 import eu.twatzl.njcrawler.service.NightjetPersistenceService
-import eu.twatzl.njcrawler.util.getCurrentTime
-import eu.twatzl.njcrawler.util.getFormattedDate
 import java.nio.file.Paths
 
 /**
- * reads multiple connection csv files and combines them into a single csv file
+ * Reads multiple connection csv files and combines them into a single csv file.
+ *
+ * This tool is mostly meant for manual use, e.g. for debugging purposes. The NjCrawlerApp main already combines the
+ * results by default. Please adjust the date for which you want to combine the csv files before use.
  */
 fun main(vararg args: String) {
-//    val formattedDate = getFormattedDate(getCurrentTime())
-    val formattedDate = "2023-10-17"
-    val dataPath = Paths.get(".").resolve("data").resolve(formattedDate).resolve("offers")
+    val date = "2023-10-17"
+    val dataPath = Paths.get(".").resolve("data").resolve(date).resolve("offers")
     NightjetPersistenceService().loadAndCombineNightjetOccupationData(dataPath)
 }
 
