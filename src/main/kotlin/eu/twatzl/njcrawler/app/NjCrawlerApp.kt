@@ -3,7 +3,7 @@ package eu.twatzl.njcrawler.app
 import eu.twatzl.njcrawler.apiclients.OEBBAccessTokenClient
 import eu.twatzl.njcrawler.apiclients.OEBBNightjetBookingClient
 import eu.twatzl.njcrawler.apiclients.OEBBStationClient
-import eu.twatzl.njcrawler.data.*
+import eu.twatzl.njcrawler.data.allNightjets
 import eu.twatzl.njcrawler.service.NightjetCrawlerService
 import eu.twatzl.njcrawler.service.NightjetPersistenceService
 import eu.twatzl.njcrawler.service.StationsResolverService
@@ -67,7 +67,7 @@ private suspend fun getHafasIdsForStationList(httpClient: HttpClient) {
 
 suspend fun getDataForNightjetsAndWriteToCsvFiles(httpClient: HttpClient) {
     // configuration
-    val trains = listOf(nj402, nj236, nj294, nj40235)
+    val trains = allNightjets
     val startTime = getCurrentTime()
     val totalTrainsRequested = 21 // must be divisible by 3
 
