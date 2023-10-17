@@ -19,14 +19,12 @@ import kotlin.io.path.listDirectoryEntries
 
 class NightjetPersistenceService {
     private val csvService = NightjetCSVService()
+    private val currentTime = getCurrentTime()
+    private val formattedDate = getFormattedDate(currentTime)  // ISO datestamp (e.g. "2023-10-17")
+    private val formattedTime = getFormattedTime(currentTime)  // timestamp (e.g. "2023-10-17_21-15" for time 21:15)
 
     fun writeNightjetOffersForTrainToCSV(train: TrainConnection, connections: List<NightjetConnectionWithMetadata>) {
-        val t = getCurrentTime()
-        val formattedDate = getFormattedDate(t)
-        val formattedTime = getFormattedTime(t)
-        // assemble path including an ISO datestamp of current date (e.g. "2023-10-17")
         val outDir = Paths.get(".").resolve("data").resolve(formattedDate).resolve("offers")
-        // create output directory if not exists
         if (!outDir.exists()) {
             outDir.createDirectories()
         }
@@ -41,7 +39,6 @@ class NightjetPersistenceService {
      */
     fun loadAndCombineNightjetOccupationData(
         dataPath: Path,
-        date: String,
     ) {
         val csvFiles = dataPath.listDirectoryEntries("*.csv")
 
@@ -56,7 +53,7 @@ class NightjetPersistenceService {
             }
         }
 
-        writeCombinedNightjetOccupationCsvInternal(connections, date)
+        writeCombinedNightjetOccupationCsvInternal(connections)
     }
 
     fun writeCombinedNightjetOccupationCsv(
@@ -71,15 +68,11 @@ class NightjetPersistenceService {
                 entry.key.trainId to entry.value.map { it.toSimplified() }
             }.toMap()
 
-        writeCombinedNightjetOccupationCsvInternal(
-            simplifiedConnections,
-            getFormattedTime(getCurrentTime()),
-        )
+        writeCombinedNightjetOccupationCsvInternal(simplifiedConnections)
     }
 
     private fun writeCombinedNightjetOccupationCsvInternal(
         connections: Map<String, List<NightjetConnectionSimplified>>,
-        date: String,
     ) {
         val departureDates = connections.values.map { connectionList ->
             val departureTimes = connectionList.map { it.departure }
@@ -93,21 +86,17 @@ class NightjetPersistenceService {
         val trains = connections.keys.sorted()
         val origins = trains.map { connections[it]?.first()?.departureStationName }
         val destinations = trains.map { connections[it]?.first()?.arrivalStationName }
-        val t = getCurrentTime()
-        val formattedDate = getFormattedDate(t)
-        // assemble path including an ISO datestamp of current date (e.g. "2023-10-17")
         val outDir = Paths.get(".").resolve("data").resolve(formattedDate).resolve("combined")
-        // create output directory if not exists
         if (!outDir.exists()) {
             outDir.createDirectories()
         }
-        val path = outDir.resolve("combined_occupation_${formattedDate}.csv")
+        val path = outDir.resolve("${formattedTime}_combined_occupation.csv")
         val writer = path.toFile().bufferedWriter()
-        writer.write(trains.joinToString { it })
+        writer.write("Train,${trains.joinToString { it }}")
         writer.newLine()
-        writer.write(origins.joinToString { it ?: "" })
+        writer.write("Origin,${origins.joinToString { it ?: "" }}")
         writer.newLine()
-        writer.write(destinations.joinToString { it ?: "" })
+        writer.write("Destination,${destinations.joinToString { it ?: "" }}")
         writer.newLine()
 
         var curDate = firstDepartureDate
