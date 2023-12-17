@@ -42,6 +42,7 @@ main function to use different functionality.
 1. select the trains you want to fetch by adding them to the main function
 2. select the date 
 3. select the number of trains to fetch (due to API restrictions it must be divisible by 3)
+4. the output is stored in `./data/combined/`
 
 ‼ PLEASE USE THE TOOL RESPONSIBLY. DO ONLY REQUEST THE DATA YOU ABSOLUTELY NEED. ‼
 
