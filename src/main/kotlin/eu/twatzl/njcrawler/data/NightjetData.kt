@@ -16,12 +16,12 @@ val brussel = Station("Brüssel Midi", "8800004")
 val rom = Station("Roma Termini", "8300263")
 val laSpezia = Station("La Spezia Centrale", "8300156")
 val livorno = Station("Livorno Centrale", "8300157")
-val venedig = Station("Venedig Santa Lucia", "8396008") // 8396008
+val venedig = Station("Venedig Santa Lucia", "8396008")
 val ancona = Station("Ancona", "8300186")
 val zagreb = Station("Zagreb Glavni kolodvor", "7800020")
 val rijeka = Station("Rijeka", "7800013")
 val budapest = Station("BUDAPEST", "5596001")
-val bratislava = Station("Bratislava hl.st.", "5600207")
+val bratislava = Station("BRATISLAVA", "5696001")
 val warschau = Station("WARSZAWA", "5196003")
 val stuttgart = Station("Stuttgart Hbf", "8000096")
 val split = Station("Split", "7800016")
@@ -252,7 +252,7 @@ val en1153 = TrainConnection(
     "EN 1153",
     bratislava,
     split
-) // Stuttgart – München Ost – Salzburg – Villach – Ljubljana – Opatija – Rijeka
+) // Bratislava - Wien - Graz - Maribor - Zagreb - Split
 val en40476 = TrainConnection(
     "EN 40476",
     budapest,
@@ -274,7 +274,7 @@ val en1152 = TrainConnection(
     "EN 1152",
     split,
     bratislava
-) // Stuttgart – München Ost – Salzburg – Villach – Ljubljana – Opatija – Rijeka
+) // Bratislava - Wien - Graz - Maribor - Zagreb - Split
 val en40457 = TrainConnection(
     "EN 40457",
     berlin,
