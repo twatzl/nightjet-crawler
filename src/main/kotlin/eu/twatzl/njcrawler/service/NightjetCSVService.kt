@@ -3,12 +3,9 @@ package eu.twatzl.njcrawler.service
 import eu.twatzl.njcrawler.data.COUCHETTE_OFFER_KEY
 import eu.twatzl.njcrawler.data.SEATING_OFFER_KEY
 import eu.twatzl.njcrawler.data.SLEEPER_OFFER_KEY
-import eu.twatzl.njcrawler.model.NightjetConnectionSimplified
-import eu.twatzl.njcrawler.model.NightjetConnectionWithMetadata
-import eu.twatzl.njcrawler.util.getFormattedDate
-import eu.twatzl.njcrawler.util.getFormattedTime
+import eu.twatzl.njcrawler.model.oebb.NightjetConnectionSimplified
+import eu.twatzl.njcrawler.model.oebb.NightjetConnectionWithMetadata
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
 import java.io.OutputStream
 import java.nio.file.Path
 

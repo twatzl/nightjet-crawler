@@ -1,11 +1,11 @@
-package eu.twatzl.njcrawler.model
+package eu.twatzl.njcrawler.model.oebb
 
 import eu.twatzl.njcrawler.data.COUCHETTE_OFFER_KEY
 import eu.twatzl.njcrawler.data.SEATING_OFFER_KEY
 import eu.twatzl.njcrawler.data.SLEEPER_OFFER_KEY
-import eu.twatzl.njcrawler.model.oebb.NightjetOffer
+import eu.twatzl.njcrawler.model.Offer
+import eu.twatzl.njcrawler.model.Station
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
 
 data class NightjetConnectionWithMetadata(
     val trainId: String,
@@ -13,7 +13,7 @@ data class NightjetConnectionWithMetadata(
     val arrivalStation: Station,
     val departure: Instant,
     val arrival: Instant,
-    val bestOffers: Map<String, NightjetOffer>,
+    val bestOffers: Map<String, Offer>,
     val retrievedAt: Instant,
 )
 

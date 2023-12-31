@@ -1,9 +1,12 @@
 package eu.twatzl.njcrawler.app
 
+import eu.twatzl.njcrawler.apiclients.EuropeanSleeperClient
 import eu.twatzl.njcrawler.apiclients.OEBBAccessTokenClient
 import eu.twatzl.njcrawler.apiclients.OEBBNightjetBookingClient
 import eu.twatzl.njcrawler.apiclients.OEBBStationClient
+import eu.twatzl.njcrawler.data.allEuropeanSleepers
 import eu.twatzl.njcrawler.data.allNightjets
+import eu.twatzl.njcrawler.service.ESCrawlerService
 import eu.twatzl.njcrawler.service.NightjetCrawlerService
 import eu.twatzl.njcrawler.service.NightjetPersistenceService
 import eu.twatzl.njcrawler.service.StationsResolverService
@@ -28,7 +31,8 @@ suspend fun main() {
 //    getHafasIdForSingleStation(httpClient)
 //    getHafasIdsForStationList(httpClient)
 
-    getDataForNightjetsAndWriteToCsvFiles(httpClient)
+    // getDataForNightjetsAndWriteToCsvFiles(httpClient)
+    getDataForESAndWriteToCsvFiles(httpClient)
 
     httpClient.close()
 }
@@ -63,6 +67,18 @@ private suspend fun getHafasIdsForStationList(httpClient: HttpClient) {
     )
     val result = stationsResolverService.getStationsBulk(stationNames)
     println(result)
+}
+suspend fun getDataForESAndWriteToCsvFiles(httpClient: HttpClient) {
+    // configuration
+    val trains = allEuropeanSleepers
+    val startTime = getCurrentTime()
+    val totalTrainsRequested = 3
+
+    // define services
+    val bookingClient = EuropeanSleeperClient(httpClient)
+    val esCrawlerService = ESCrawlerService(bookingClient)
+
+    val connections = esCrawlerService.requestData(trains, totalTrainsRequested, startTime)
 }
 
 suspend fun getDataForNightjetsAndWriteToCsvFiles(httpClient: HttpClient) {

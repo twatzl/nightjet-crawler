@@ -1,9 +1,9 @@
-package eu.twatzl.njcrawler.model.oebb
+package eu.twatzl.njcrawler.model
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NightjetOffer(
+data class Offer(
     val name: String,
     val price: Float,
 )

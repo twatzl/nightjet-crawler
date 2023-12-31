@@ -1,10 +1,10 @@
 package eu.twatzl.njcrawler.service
 
 import eu.twatzl.njcrawler.apiclients.OEBBNightjetBookingClient
-import eu.twatzl.njcrawler.model.NightjetConnectionWithMetadata
+import eu.twatzl.njcrawler.model.oebb.NightjetConnectionWithMetadata
 import eu.twatzl.njcrawler.model.Station
 import eu.twatzl.njcrawler.model.TrainConnection
-import eu.twatzl.njcrawler.model.oebb.NightjetOffer
+import eu.twatzl.njcrawler.model.Offer
 import eu.twatzl.njcrawler.model.oebb.addMetadata
 import eu.twatzl.njcrawler.util.getCurrentTime
 import eu.twatzl.njcrawler.util.getTimezone
@@ -84,7 +84,7 @@ class NightjetCrawlerService(
             startTime,
             startTime.plus(1, DateTimeUnit.DAY, getTimezone()),
             bestOffers = mapOf(
-                "timeout" to NightjetOffer(message, 0.0f)
+                "timeout" to Offer(message, 0.0f)
             ),
             getCurrentTime(),
         )
@@ -108,9 +108,8 @@ class NightjetCrawlerService(
                 timestamp,
                 numberResults = maxRequest
             )
-                ?.filterNotNull()
-                ?.map { it.addMetadata(trainId, fromStation, toStation, getCurrentTime()) }
-                ?: emptyList()
+                .filterNotNull()
+                .map { it.addMetadata(trainId, fromStation, toStation, getCurrentTime()) }
         }
 
         result.onSuccess {
@@ -125,7 +124,7 @@ class NightjetCrawlerService(
         result.onFailure {
 
             println("$trainId ${fromStation.name} - ${toStation.name}: timeout for connections from $startTime")
-            // on failure we add error offers to indicate in the final csv that a timeout occured
+            // on failure, we add error offers to indicate in the final csv that a timeout occurred
             repeat(maxRequest) { count ->
                 val errorTime = startTime.plus(count, DateTimeUnit.DAY, getTimezone())
                 offers.add(
