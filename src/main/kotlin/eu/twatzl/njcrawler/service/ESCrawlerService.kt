@@ -18,8 +18,8 @@ class ESCrawlerService(
         trains: List<TrainConnection>,
         totalTrainsRequested: Int,
         startTime: Instant,
-    ): MutableMap<TrainConnection, List<ESConnectionWithMetadata>> {
-        val offers = mutableMapOf<TrainConnection, List<ESConnectionWithMetadata>>()
+    ): Map<TrainConnection, List<ESConnectionSimplified>> {
+        val offers = mutableMapOf<TrainConnection, List<ESConnectionSimplified>>()
 
         trains.forEachIndexed { idx, train ->
             val trainId = train.trainId
@@ -29,8 +29,9 @@ class ESCrawlerService(
 
             offers[train] =
                 requestOffers(trainId, fromStation, toStation, startTime, totalTrainsRequested)
-                    .distinctBy { it.availability.departureTime }
-                    .sortedBy { it.availability.departureTime }
+                    .map { it.toSimplified() }
+                    .distinctBy { it.departure }
+                    .sortedBy { it.departure }
 
             println("(${idx + 1}/${trains.size}) Train $trainId done ✔")
         }
@@ -44,7 +45,7 @@ class ESCrawlerService(
         toStation: Station,
         startTime: Instant,
         totalTrainsRequested: Int,
-    ): MutableList<ESConnectionWithMetadata> {
+    ): List<ESConnectionWithMetadata> {
         var time = startTime
 
         val offers = mutableListOf<ESConnectionWithMetadata>()
@@ -63,7 +64,7 @@ class ESCrawlerService(
         toStation: Station,
         startTime: Instant,
         maxRequest: Int = 3,
-    ): MutableList<ESConnectionWithMetadata> {
+    ): List<ESConnectionWithMetadata> {
         val trainNumber = trainId.substring(2) // remove prefix "ES " for API request
         val travelDate = startTime.toLocalDateTime(getTimezone())
         val offers = mutableListOf<ESConnectionWithMetadata>()

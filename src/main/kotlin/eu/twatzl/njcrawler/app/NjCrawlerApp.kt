@@ -20,6 +20,7 @@ val writeCSVPerTrain = true
 val writeOccupationCSV = true
 val writePricingCSV = true
 
+// TODO revert to 21 after testing
 const val totalTrainsRequested = 3 // must be divisible by 3 for NJ API
 
 suspend fun main() {
@@ -28,7 +29,6 @@ suspend fun main() {
 //    getHafasIdForSingleStation(httpClient)
 //    getHafasIdsForStationList(httpClient)
 
-    // TODO remove comment when done implementing ES
     getDataForNightjetsAndWriteToCsvFiles(httpClient)
     getDataForESAndWriteToCsvFiles(httpClient)
 
@@ -79,7 +79,7 @@ suspend fun getDataForESAndWriteToCsvFiles(httpClient: HttpClient) {
         esPersistenceService.writeESOffersForTrainToCSV(train, connections)
     }
 
-    esPersistenceService.writeCombinedNightjetOccupationCsv(connections)
+    esPersistenceService.writeCombinedESOccupationCsv(connections)
     println("finished ES ✔")
 }
 

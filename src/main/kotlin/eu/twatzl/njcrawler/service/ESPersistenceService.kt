@@ -2,8 +2,6 @@ package eu.twatzl.njcrawler.service
 
 import eu.twatzl.njcrawler.model.TrainConnection
 import eu.twatzl.njcrawler.model.es.ESConnectionSimplified
-import eu.twatzl.njcrawler.model.es.ESConnectionWithMetadata
-import eu.twatzl.njcrawler.model.es.toSimplified
 import eu.twatzl.njcrawler.util.getCurrentTime
 import eu.twatzl.njcrawler.util.getFormattedDate
 import eu.twatzl.njcrawler.util.getFormattedTime
@@ -22,7 +20,7 @@ class ESPersistenceService {
     /**
      * creates a separate CSV file for each train number
      */
-    fun writeESOffersForTrainToCSV(train: TrainConnection, connections: List<ESConnectionWithMetadata>) {
+    fun writeESOffersForTrainToCSV(train: TrainConnection, connections: List<ESConnectionSimplified>) {
         val outDir = Path(".").resolve("data").resolve(formattedDate).resolve("offers")
         if (!outDir.exists()) {
             outDir.createDirectories()
@@ -33,23 +31,8 @@ class ESPersistenceService {
         fos.close()
     }
 
-    fun writeCombinedNightjetOccupationCsv(connections: MutableMap<TrainConnection, List<ESConnectionWithMetadata>>) {
-        connections.filter { it.value.isEmpty() }
-            .forEach { (train, _) ->
-                println("No connections found for train ${train.trainId} ${train.fromStation.name} - ${train.toStation.name}")
-            }
-
-        val simplifiedConnections = connections
-            .filterNot { it.value.isEmpty() }
-            .map { (train, connections) ->
-                train.trainId to connections.map { it.toSimplified() }
-            }.toMap()
-
-        writeCombinedESOccupationCsvInternal(simplifiedConnections)
-    }
-
-    private fun writeCombinedESOccupationCsvInternal(
-        connections: Map<String, List<ESConnectionSimplified>>,
+    fun writeCombinedESOccupationCsv(
+        connections: Map<TrainConnection, List<ESConnectionSimplified>>,
         timestamp: String = formattedTime,
         date: String = formattedDate,
     ) {
@@ -57,13 +40,14 @@ class ESPersistenceService {
             val departureTimes = connectionList.map { it.departure }
             Pair(departureTimes.minOf { it }, departureTimes.maxOf { it })
         }
+        val filteredConnections = filterConnections(connections)
 
         val firstDepartureDate = departureDates.minOf { it.first }
         val lastDepartureDate = departureDates.maxOf { it.second }
 
-        val trains = connections.keys.sorted()
-        val origins = trains.map { connections[it]?.first()?.departureStationName }
-        val destinations = trains.map { connections[it]?.first()?.arrivalStationName }
+        val trains = filteredConnections.keys.sorted()
+        val origins = trains.map { filteredConnections[it]?.first()?.departureStationName }
+        val destinations = trains.map { filteredConnections[it]?.first()?.arrivalStationName }
         val outDir = Path(".").resolve("data").resolve(date).resolve("combined")
         if (!outDir.exists()) {
             outDir.createDirectories()
@@ -81,7 +65,7 @@ class ESPersistenceService {
         while (curDate <= lastDepartureDate) {
             val formattedDate = getFormattedDate(curDate)  // do not include departure time, just date
             val offers = trains.map { train ->
-                val conn = connections[train]?.find {
+                val conn = filteredConnections[train]?.find {
                     getFormattedDate(it.departure) == formattedDate  // compare based on date, not exact timestamp
                 }
 
@@ -108,5 +92,19 @@ class ESPersistenceService {
 
         writer.flush()
         writer.close()
+    }
+
+
+    /**
+     * remove trains without connections from map and print corresponding message
+     * also reduces the map key to the trainId
+     */
+    private fun filterConnections(connections: Map<TrainConnection, List<ESConnectionSimplified>>): MutableMap<String, List<ESConnectionSimplified>> {
+        connections.filter { it.value.isEmpty() }
+            .forEach { (train, _) ->
+                println("No connections found for train ${train.trainId} ${train.fromStation.name} - ${train.toStation.name}")
+            }
+
+        return connections.filterNot { it.value.isEmpty() }.map { it.key.trainId to it.value }.toMap().toMutableMap()
     }
 }
