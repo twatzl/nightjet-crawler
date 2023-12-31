@@ -230,6 +230,7 @@ val njNachCH = listOf(
 // ************************************************
 
 val nj295 = TrainConnection("NJ 295", munich, rom) // München – Salzburg – Villach – Florenz – Rom
+
 //val nj295 = TrainConnection("NJ 295", munich, ancona), // München – Salzburg – Villach – Florenz – Rom
 val nj40295 = TrainConnection(
     "NJ 40295",

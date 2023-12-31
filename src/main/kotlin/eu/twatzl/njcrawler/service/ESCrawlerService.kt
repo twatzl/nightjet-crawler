@@ -22,24 +22,24 @@ class ESCrawlerService(
         val offers = mutableMapOf<TrainConnection, List<ESConnectionWithMetadata>>()
 
         trains.forEachIndexed { idx, train ->
-            val trainNumber = train.trainId
+            val trainId = train.trainId
             val fromStation = train.fromStation
             val toStation = train.toStation
-            println("starting requesting offers for ES $trainNumber")
+            println("starting requesting offers for $trainId")
 
             offers[train] =
-                requestOffers(trainNumber, fromStation, toStation, startTime, totalTrainsRequested)
+                requestOffers(trainId, fromStation, toStation, startTime, totalTrainsRequested)
                     .distinctBy { it.availability.departureTime }
                     .sortedBy { it.availability.departureTime }
 
-            println("(${idx + 1}/${trains.size}) Train ES $trainNumber done ✔")
+            println("(${idx + 1}/${trains.size}) Train $trainId done ✔")
         }
 
         return offers
     }
 
     private suspend fun requestOffers(
-        trainNumber: String,
+        trainId: String,
         fromStation: Station,
         toStation: Station,
         startTime: Instant,
@@ -50,7 +50,7 @@ class ESCrawlerService(
         val offers = mutableListOf<ESConnectionWithMetadata>()
 
         repeat(totalTrainsRequested) { _ ->
-            offers.addAll(callESApiSafe(trainNumber, fromStation, toStation, time))
+            offers.addAll(callESApiSafe(trainId, fromStation, toStation, time))
             time = time.plus(1, DateTimeUnit.DAY, getTimezone())
         }
 
@@ -58,13 +58,13 @@ class ESCrawlerService(
     }
 
     private suspend fun callESApiSafe(
-        trainNumber: String,
+        trainId: String,
         fromStation: Station,
         toStation: Station,
         startTime: Instant,
         maxRequest: Int = 3,
     ): MutableList<ESConnectionWithMetadata> {
-        val trainId = "ES $trainNumber"
+        val trainNumber = trainId.substring(2) // remove prefix "ES " for API request
         val travelDate = startTime.toLocalDateTime(getTimezone())
         val offers = mutableListOf<ESConnectionWithMetadata>()
 
@@ -83,7 +83,7 @@ class ESCrawlerService(
                 println("$trainId: request ok for $startTime")
             } else {
                 println("$trainId ${fromStation.name} - ${toStation.name}: no connections for $startTime")
-                }
+            }
         }
 
         result.onFailure {
@@ -133,14 +133,16 @@ class ESCrawlerService(
                 "",
                 toStation.id,
                 errorTime.plus(1, DateTimeUnit.DAY, getTimezone()).toLocalDateTime(getTimezone()),
-                arrayOf(PriceClass(
-                    "timeout",
-                    0,
-                    0,
-                    0,
-                    arrayOf(FareType(message, false, 0, 0)),
-                    false
-                )),
+                arrayOf(
+                    PriceClass(
+                        "timeout",
+                        0,
+                        0,
+                        0,
+                        arrayOf(FareType(message, false, 0, 0)),
+                        false
+                    )
+                ),
                 emptyArray(),
             ),
             getCurrentTime()

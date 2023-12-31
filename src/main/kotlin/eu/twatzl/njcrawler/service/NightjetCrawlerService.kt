@@ -1,14 +1,16 @@
 package eu.twatzl.njcrawler.service
 
 import eu.twatzl.njcrawler.apiclients.OEBBNightjetBookingClient
-import eu.twatzl.njcrawler.model.oebb.NightjetConnectionWithMetadata
+import eu.twatzl.njcrawler.model.Offer
 import eu.twatzl.njcrawler.model.Station
 import eu.twatzl.njcrawler.model.TrainConnection
-import eu.twatzl.njcrawler.model.Offer
+import eu.twatzl.njcrawler.model.oebb.NightjetConnectionWithMetadata
 import eu.twatzl.njcrawler.model.oebb.addMetadata
 import eu.twatzl.njcrawler.util.getCurrentTime
 import eu.twatzl.njcrawler.util.getTimezone
-import kotlinx.datetime.*
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
+import kotlinx.datetime.plus
 
 class NightjetCrawlerService(
     private val nightjetService: OEBBNightjetBookingClient,
@@ -35,7 +37,7 @@ class NightjetCrawlerService(
                     .sortedBy { it.departure }
             offers[nj] = offersForTrain
 
-            println("(${idx + 1}/${connectionSearchList.size}) Train $trainId done")
+            println("(${idx + 1}/${connectionSearchList.size}) Train $trainId done ✔")
         }
         return offers
     }
@@ -54,7 +56,7 @@ class NightjetCrawlerService(
         val offers = mutableListOf<NightjetConnectionWithMetadata>()
 
         // TODO: not every train runs every day, so with the overlap we get duplicate data. add that feature
-        repeat(numRequests) { requestCount ->
+        repeat(numRequests) {
             offers.addAll(callNightjetApiSafe(trainId, fromStation, toStation, time, maxRequest))
             time = time.plus(
                 trainsPerRequest.toLong(), DateTimeUnit.DAY,
