@@ -1,6 +1,5 @@
 package eu.twatzl.njcrawler.model.es
 
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
@@ -11,8 +10,8 @@ data class Section(
     val notices: String?,
     val departureStationId: String,
     val departureStationName: String,
-    val departureTime: String, // TODO use Instant or LocalDateTime instead
+    val departureTime: LocalDateTime,
     val arrivalStationId: String,
     val arrivalStationName: String,
-    val arrivalTime: String, // TODO use Instant or LocalDateTime instead
+    val arrivalTime: LocalDateTime,
 )
