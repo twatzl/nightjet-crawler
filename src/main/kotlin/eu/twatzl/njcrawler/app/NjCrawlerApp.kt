@@ -31,6 +31,7 @@ suspend fun main() {
 //    getHafasIdForSingleStation(httpClient)
 //    getHafasIdsForStationList(httpClient)
 
+    // TODO remove comment when done implementing ES
     // getDataForNightjetsAndWriteToCsvFiles(httpClient)
     getDataForESAndWriteToCsvFiles(httpClient)
 
@@ -72,7 +73,7 @@ suspend fun getDataForESAndWriteToCsvFiles(httpClient: HttpClient) {
     // configuration
     val trains = allEuropeanSleepers
     val startTime = getCurrentTime()
-    val totalTrainsRequested = 3
+    val totalTrainsRequested = 3 // TODO decide on final number; maybe 21?
 
     // define services
     val bookingClient = EuropeanSleeperClient(httpClient)

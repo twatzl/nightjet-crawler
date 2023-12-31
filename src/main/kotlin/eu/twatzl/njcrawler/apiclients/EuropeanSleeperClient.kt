@@ -6,6 +6,9 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonBuilder
+import kotlinx.serialization.json.JsonObject
 
 class EuropeanSleeperClient(
     private val httpClient: HttpClient,
@@ -23,7 +26,6 @@ class EuropeanSleeperClient(
         toLocationId: String,
         travelDate: LocalDateTime
     ): ESConnection? {
-        val body = AvailabilityRequest(fromLocationId, toLocationId, trainNumber, travelDate)
         val response = httpClient.post(ENDPOINT) {
             headers {
                 append(
@@ -32,14 +34,8 @@ class EuropeanSleeperClient(
                 ) // no comment
             }
             contentType(ContentType.Application.Json)
-            setBody(body)
+            setBody(AvailabilityRequest(fromLocationId, toLocationId, trainNumber, travelDate))
         }
-
-        // TODO remove after debugging
-        println("response status: ${response.status}")
-        println("response body: ${response.body<String>()}")
-
-        // TODO problem: JSON mapping to ESConnection doesn't work, function crashes and throws "timeout"
 
         return if (response.status.value == 200) {
             response.body<ESConnection>()

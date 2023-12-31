@@ -32,7 +32,7 @@ class ESCrawlerService(
                     .distinctBy { it.availability.departureTime }
                     .sortedBy { it.availability.departureTime }
 
-            println("(${idx + 1}/${trains.size}) Train ES $trainNumber done")
+            println("(${idx + 1}/${trains.size}) Train ES $trainNumber done ✔")
         }
 
         return offers
@@ -87,7 +87,10 @@ class ESCrawlerService(
         }
 
         result.onFailure {
-            println("$trainId ${fromStation.name} - ${toStation.name}: timeout for connections from $startTime")
+            println("$trainId ${fromStation.name} - ${toStation.name}: error fetchting connections from $startTime")
+            println(it.cause)
+            println(it.message)
+
             // on failure, we add error offers to indicate in the final csv that a timeout occurred
             repeat(maxRequest) { count ->
                 val errorTime = startTime.plus(count, DateTimeUnit.DAY, getTimezone())
@@ -126,19 +129,19 @@ class ESCrawlerService(
                 "",
                 "",
                 fromStation.id,
-                errorTime,
+                errorTime.toString(),
                 "",
                 toStation.id,
-                errorTime.plus(1, DateTimeUnit.DAY, getTimezone()),
-                listOf(PriceClass(
+                errorTime.plus(1, DateTimeUnit.DAY, getTimezone()).toString(),
+                arrayOf(PriceClass(
                     "timeout",
                     0,
                     0,
                     0,
-                    listOf(FareType(message, false, 0, 0)),
+                    arrayOf(FareType(message, false, 0, 0)),
                     false
                 )),
-                emptyList(),
+                emptyArray(),
             ),
             getCurrentTime()
         )
