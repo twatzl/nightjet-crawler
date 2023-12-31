@@ -171,7 +171,7 @@ val nj402 = TrainConnection("NJ 402", zurich, amsterdam)  // Zürich – Basel �
 val en50467 = TrainConnection(
     "EN 50467",
     zurich,
-    esPraha
+    praha
 ) // ČD (Nightjet Partner)  Zürich – Feldkirch – Salzburg – Linz – Prag  Nein
 val en40467 =
     TrainConnection("EN 40467", zurich, budapest)    //  Budapest – Wien – Linz – Innsbruck – Feldkirch – Zürich
@@ -182,7 +182,7 @@ val en40465 = TrainConnection(
     zurich,
     zagreb
 ) // HŽ (Nightjet Partner)  Zagreb – Ljubljana – Villach – Feldkirch – Zürich  Nein
-val en40459 = TrainConnection("EN 40459", zurich, esPraha) // Zürich - Karlsruhe - Frankfurt - Leipzig - Prag
+val en40459 = TrainConnection("EN 40459", zurich, praha) // Zürich - Karlsruhe - Frankfurt - Leipzig - Prag
 
 val njAbCH = listOf(
     en40462,
@@ -210,10 +210,10 @@ val en40414 = TrainConnection(
 val nj403 = TrainConnection("NJ 403", amsterdam, zurich)
 val en50466 = TrainConnection(
     "EN 50466",
-    esPraha,
+    praha,
     zurich
 ) // ČD (,Nightjet Partner)  Zürich – Feldkirch – Salzburg – Linz – Prag  Nein
-val en40458 = TrainConnection("EN 40458", esPraha, zurich) // Zürich - Karlsruhe - Frankfurt - Leipzig - Prag
+val en40458 = TrainConnection("EN 40458", praha, zurich) // Zürich - Karlsruhe - Frankfurt - Leipzig - Prag
 
 val njNachCH = listOf(
     nj408,
