@@ -129,10 +129,10 @@ class ESCrawlerService(
                 "",
                 "",
                 fromStation.id,
-                errorTime.toString(),
+                errorTime.toLocalDateTime(getTimezone()),
                 "",
                 toStation.id,
-                errorTime.plus(1, DateTimeUnit.DAY, getTimezone()).toString(),
+                errorTime.plus(1, DateTimeUnit.DAY, getTimezone()).toLocalDateTime(getTimezone()),
                 arrayOf(PriceClass(
                     "timeout",
                     0,

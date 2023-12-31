@@ -13,7 +13,7 @@ import kotlinx.datetime.toLocalDateTime
 
 val esBerlinOst = Station("Berlin Ostbahnhof", "8010110")
 val esBruxelles = Station("Brüssel-Süd", "8800104")
-val esPraha = Station("Prag hl.n.", "5457076") // starting from March 25, 2024
+val esPraha = Station("Prag hl.n.", "5457076")
 
 // TODO remove conditional assignments some time after March 25/26, 2024
 

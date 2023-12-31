@@ -5,7 +5,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Section (
+data class Section(
     val id: Int,
     val line: Line,
     val notices: String?,

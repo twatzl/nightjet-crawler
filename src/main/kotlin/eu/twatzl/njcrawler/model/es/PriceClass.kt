@@ -3,7 +3,7 @@ package eu.twatzl.njcrawler.model.es
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PriceClass (
+data class PriceClass(
     val placeTypeKey: String,
     val placeTypeIcon: Int,
     val freeSeatsCount: Int?,

@@ -5,15 +5,15 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Availability (
+data class Availability(
     val requestedDepartureStationId: String,
     val requestedArrivalStationId: String,
     val departureStationId: String,
     val departureStationName: String,
-    val departureTime: String, // TODO use Instant or LocalDateTime instead
+    val departureTime: LocalDateTime,
     val arrivalStationId: String,
     val arrivalStationName: String,
-    val arrivalTime: String, // TODO use Instant or LocalDateTime instead
+    val arrivalTime: LocalDateTime,
     val priceClasses: Array<PriceClass>,
     val sections: Array<Section>, // doesn't seem to contain relevant data yet
 ) {
