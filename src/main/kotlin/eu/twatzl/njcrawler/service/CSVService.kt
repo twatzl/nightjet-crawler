@@ -29,25 +29,16 @@ class CSVService {
         return reader.lineSequence()
             .filter { it.isNotBlank() }
             .map {
-                //${it.trainId}, ${it.departure.format(dateFormatter)}, ${it.departure}, ${it.arrival}, ${it.departureStation.name}, ${it.arrivalStation.name}, $seatingOffer, $couchetteOffer, $sleeperOffer
                 val splitLine = it.split(',', ignoreCase = false, limit = 9)
-                val trainId = splitLine[0]
-                val departure = Instant.parse(splitLine[2].trim())
-                val arrival = Instant.parse(splitLine[3].trim())
-                val departureStationName = splitLine[4]
-                val arrivalStationName = splitLine[5]
-                val seatingOffer = splitLine[6].toFloatOrNull()
-                val couchetteOffer = splitLine[7].toFloatOrNull()
-                val sleeperOffer = splitLine[8].toFloatOrNull()
                 SimplifiedConnection(
-                    trainId,
-                    departureStationName,
-                    arrivalStationName,
-                    departure,
-                    arrival,
-                    seatingOffer,
-                    couchetteOffer,
-                    sleeperOffer
+                    splitLine[0],
+                    splitLine[4],
+                    splitLine[5],
+                    Instant.parse(splitLine[2].trim()),
+                    Instant.parse(splitLine[3].trim()),
+                    splitLine[6].toFloatOrNull(),
+                    splitLine[7].toFloatOrNull(),
+                    splitLine[8].toFloatOrNull()
                 )
             }.toList()
     }
