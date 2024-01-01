@@ -34,7 +34,7 @@ suspend fun main() {
     val esConnections = getDataForES(httpClient)
 
     // combine connections of different operators
-    val allConnections = njConnections.plus(esConnections)
+    val allConnections = njConnections + esConnections
 
     if (writeCSVPerTrain) {
         allConnections.forEach { (train, connections) ->
