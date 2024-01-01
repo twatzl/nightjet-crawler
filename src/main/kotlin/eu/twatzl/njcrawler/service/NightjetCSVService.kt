@@ -3,7 +3,7 @@ package eu.twatzl.njcrawler.service
 import eu.twatzl.njcrawler.data.COUCHETTE_OFFER_KEY
 import eu.twatzl.njcrawler.data.SEATING_OFFER_KEY
 import eu.twatzl.njcrawler.data.SLEEPER_OFFER_KEY
-import eu.twatzl.njcrawler.model.oebb.NightjetConnectionSimplified
+import eu.twatzl.njcrawler.model.SimplifiedConnection
 import eu.twatzl.njcrawler.model.oebb.NightjetConnectionWithMetadata
 import kotlinx.datetime.Instant
 import java.io.OutputStream
@@ -27,13 +27,12 @@ class NightjetCSVService {
         writer.flush()
     }
 
-    fun readCsv(path: Path): List<NightjetConnectionSimplified> {
+    fun readCsv(path: Path): List<SimplifiedConnection> {
         val reader = path.toFile().bufferedReader()
         reader.readLine() // read header
         return reader.lineSequence()
             .filter { it.isNotBlank() }
             .map {
-
                 //${it.trainId}, ${it.departure.format(dateFormatter)}, ${it.departure}, ${it.arrival}, ${it.departureStation.name}, ${it.arrivalStation.name}, $seatingOffer, $couchetteOffer, $sleeperOffer
                 val splitLine = it.split(',', ignoreCase = false, limit = 9)
                 val trainId = splitLine[0]
@@ -44,7 +43,7 @@ class NightjetCSVService {
                 val seatingOffer = splitLine[6].toFloatOrNull()
                 val couchetteOffer = splitLine[7].toFloatOrNull()
                 val sleeperOffer = splitLine[8].toFloatOrNull()
-                NightjetConnectionSimplified(
+                SimplifiedConnection(
                     trainId,
                     departureStationName,
                     arrivalStationName,

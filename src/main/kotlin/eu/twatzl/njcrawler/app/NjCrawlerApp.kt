@@ -16,9 +16,9 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 
 // configuration
-val writeCSVPerTrain = true
-val writeOccupationCSV = true
-val writePricingCSV = true
+const val writeCSVPerTrain = true
+const val writeOccupationCSV = true
+const val writePricingCSV = true
 
 // TODO revert to 21 after testing
 const val totalTrainsRequested = 3 // must be divisible by 3 for NJ API
@@ -75,10 +75,11 @@ suspend fun getDataForESAndWriteToCsvFiles(httpClient: HttpClient) {
 
     val connections = esCrawlerService.requestData(allEuropeanSleepers, totalTrainsRequested, getCurrentTime())
 
-    connections.forEach { (train, connections) ->
-        esPersistenceService.writeESOffersForTrainToCSV(train, connections)
+    if (writeCSVPerTrain) {
+        connections.forEach { (train, connections) ->
+            esPersistenceService.writeESOffersForTrainToCSV(train, connections)
+        }
     }
-
     esPersistenceService.writeCombinedESOccupationCsv(connections)
     println("finished ES ✔")
 }
@@ -92,8 +93,10 @@ suspend fun getDataForNightjetsAndWriteToCsvFiles(httpClient: HttpClient) {
     val connections =
         nightjectCrawlerService.requestNightjetData(allNightjets, totalTrainsRequested, getCurrentTime())
 
-    connections.map { entry ->
-        nightjetPersistenceService.writeNightjetOffersForTrainToCSV(entry.key, entry.value)
+    if (writeCSVPerTrain) {
+        connections.map { entry ->
+            nightjetPersistenceService.writeNightjetOffersForTrainToCSV(entry.key, entry.value)
+        }
     }
 
     nightjetPersistenceService.writeCombinedNightjetOccupationCsv(connections)

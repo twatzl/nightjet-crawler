@@ -1,11 +1,13 @@
 package eu.twatzl.njcrawler.service
 
+import eu.twatzl.njcrawler.model.SimplifiedConnection
 import eu.twatzl.njcrawler.model.TrainConnection
-import eu.twatzl.njcrawler.model.es.ESConnectionSimplified
 import eu.twatzl.njcrawler.util.getCurrentTime
 import eu.twatzl.njcrawler.util.getFormattedDate
 import eu.twatzl.njcrawler.util.getFormattedTime
-import eu.twatzl.njcrawler.util.getNextDay
+import eu.twatzl.njcrawler.util.getTimezone
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
 import java.io.FileOutputStream
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
@@ -20,7 +22,7 @@ class ESPersistenceService {
     /**
      * creates a separate CSV file for each train number
      */
-    fun writeESOffersForTrainToCSV(train: TrainConnection, connections: List<ESConnectionSimplified>) {
+    fun writeESOffersForTrainToCSV(train: TrainConnection, connections: List<SimplifiedConnection>) {
         val outDir = Path(".").resolve("data").resolve(formattedDate).resolve("offers")
         if (!outDir.exists()) {
             outDir.createDirectories()
@@ -32,7 +34,7 @@ class ESPersistenceService {
     }
 
     fun writeCombinedESOccupationCsv(
-        connections: Map<TrainConnection, List<ESConnectionSimplified>>,
+        connections: Map<TrainConnection, List<SimplifiedConnection>>,
         timestamp: String = formattedTime,
         date: String = formattedDate,
     ) {
@@ -87,7 +89,7 @@ class ESPersistenceService {
             writer.write(offers.joinToString { it })
             writer.newLine()
 
-            curDate = getNextDay(curDate)
+            curDate = curDate.plus(1, DateTimeUnit.DAY, getTimezone())
         }
 
         writer.flush()
@@ -99,7 +101,7 @@ class ESPersistenceService {
      * remove trains without connections from map and print corresponding message
      * also reduces the map key to the trainId
      */
-    private fun filterConnections(connections: Map<TrainConnection, List<ESConnectionSimplified>>): MutableMap<String, List<ESConnectionSimplified>> {
+    private fun filterConnections(connections: Map<TrainConnection, List<SimplifiedConnection>>): MutableMap<String, List<SimplifiedConnection>> {
         connections.filter { it.value.isEmpty() }
             .forEach { (train, _) ->
                 println("No connections found for train ${train.trainId} ${train.fromStation.name} - ${train.toStation.name}")

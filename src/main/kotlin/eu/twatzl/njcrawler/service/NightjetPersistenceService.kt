@@ -1,9 +1,8 @@
 package eu.twatzl.njcrawler.service
 
+import eu.twatzl.njcrawler.model.SimplifiedConnection
 import eu.twatzl.njcrawler.model.TrainConnection
-import eu.twatzl.njcrawler.model.oebb.NightjetConnectionSimplified
 import eu.twatzl.njcrawler.model.oebb.NightjetConnectionWithMetadata
-import eu.twatzl.njcrawler.model.oebb.toSimplified
 import eu.twatzl.njcrawler.util.getCurrentTime
 import eu.twatzl.njcrawler.util.getFormattedDate
 import eu.twatzl.njcrawler.util.getFormattedTime
@@ -44,7 +43,7 @@ class NightjetPersistenceService {
     ) {
         val csvFiles = dataPath.listDirectoryEntries("$timestamp*.csv")
 
-        val connections = mutableMapOf<String, List<NightjetConnectionSimplified>>()
+        val connections = mutableMapOf<String, List<SimplifiedConnection>>()
 
         csvFiles.forEach { csv ->
             val trainConnections = csvService.readCsv(csv)
@@ -74,7 +73,7 @@ class NightjetPersistenceService {
     }
 
     private fun writeCombinedNightjetOccupationCsvInternal(
-        connections: Map<String, List<NightjetConnectionSimplified>>,
+        connections: Map<String, List<SimplifiedConnection>>,
         timestamp: String = formattedTime,
         date: String = formattedDate,
     ) {

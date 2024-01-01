@@ -1,10 +1,10 @@
 package eu.twatzl.njcrawler.service
 
-import eu.twatzl.njcrawler.model.es.ESConnectionSimplified
+import eu.twatzl.njcrawler.model.SimplifiedConnection
 import java.io.FileOutputStream
 
 class ESCSVService {
-    fun writeCsv(outputStream: FileOutputStream, connections: List<ESConnectionSimplified>) {
+    fun writeCsv(outputStream: FileOutputStream, connections: List<SimplifiedConnection>) {
         val writer = outputStream.bufferedWriter()
         writer.write(""""trainId", "departureDate", "departure", "arrival", "departureStation", "arrivalStation", "seatingOffer", "couchetteOffer", "sleeperOffer"""")
         writer.newLine()

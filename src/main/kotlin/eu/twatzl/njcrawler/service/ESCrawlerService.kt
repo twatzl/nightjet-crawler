@@ -1,6 +1,7 @@
 package eu.twatzl.njcrawler.service
 
 import eu.twatzl.njcrawler.apiclients.EuropeanSleeperClient
+import eu.twatzl.njcrawler.model.SimplifiedConnection
 import eu.twatzl.njcrawler.model.Station
 import eu.twatzl.njcrawler.model.TrainConnection
 import eu.twatzl.njcrawler.model.es.*
@@ -18,8 +19,8 @@ class ESCrawlerService(
         trains: List<TrainConnection>,
         totalTrainsRequested: Int,
         startTime: Instant,
-    ): Map<TrainConnection, List<ESConnectionSimplified>> {
-        val offers = mutableMapOf<TrainConnection, List<ESConnectionSimplified>>()
+    ): Map<TrainConnection, List<SimplifiedConnection>> {
+        val offers = mutableMapOf<TrainConnection, List<SimplifiedConnection>>()
 
         trains.forEachIndexed { idx, train ->
             val trainId = train.trainId
