@@ -19,30 +19,37 @@ Recommended development environment is IntelliJ or any other gradle compatible I
 
 1. git clone
 2. open in IntelliJ
-3. gradle sync 
+3. gradle sync (or run `./gradlew build`)
 4. run main function in NjCrawlerApp.kt
 
 ## How to use the tool
 
-data/NightjetData.kt contains all data about stations and trains.
+All data about stations and trains is stored in `./data/NightjetData.kt` and `./data/EuropeanSleeperData.kt`.
 
-Currently there is no commandline interface or anything, so you have to edit the 
-main function to use different functionality.
+Currently, there is no commandline interface or anything, so you have to edit the 
+main function in `./app/NjCrawlerApp.kt` to use different functionality.
 
-### Add new train connection
+### Add new NightJet connection
 
-1. fetch the hafas ids for the stations
-2. add the station definitions in data/NightjetData.kt
-3. add a train connection using departure station, destination station and train number
-4. optional: add the train connection to either one of the lists of trains
-5. add a list containing the train connection to the list of trains to fetch in the main function
+1. Fetch the HAFAS IDs for the stations.
+2. Add the station definitions in `./data/NightjetData.kt`.
+3. Add a train connection using departure station, destination station, and train number.
+4. Optional: add the train connection to either one of the lists of trains.
+5. Add a list containing the train connection to the list of trains to fetch in the main function.
 
-### Fetch nightjet data
+### Add new European Sleeper connection
+1. Visit [europeansleeper.eu](https://www.europeansleeper.eu) and inspect the source code of the departure or arrival station input field to find all station IDs.
+2. Add the station definitions in `./data/EuropeanSleeperData.kt`.
+3. see steps 3. - 5. above
 
-1. select the trains you want to fetch by adding them to the main function
-2. select the date 
-3. select the number of trains to fetch (due to API restrictions it must be divisible by 3)
-4. the output is stored in `./data/combined/`
+### Fetch data
+
+1. Select the trains you want to fetch by modifying the data files accordingly.
+2. In `./app/NjCrawlerApp.kt`:
+   1. Select whether to write individual files for each train, one combined file, or both.
+   2. Select the number of trains to fetch (due to API restrictions it must be divisible by 3).
+   3. Run the main function.
+3. The output is stored in `./data/combined/`.
 
 ‼ PLEASE USE THE TOOL RESPONSIBLY. DO ONLY REQUEST THE DATA YOU ABSOLUTELY NEED. ‼
 

@@ -11,11 +11,11 @@ data class ESConnection(
     data class AvailabilityResult(
         val availability: Availability,
     )
-}
 
-fun ESConnection.addMetadata(
-    trainId: String,
-    retrievedAt: Instant,
-): ESConnectionWithMetadata {
-    return ESConnectionWithMetadata(trainId, availabilityResult.availability, retrievedAt)
+    fun addMetadata(
+        trainId: String,
+        retrievedAt: Instant,
+    ): ESConnectionWithMetadata {
+        return ESConnectionWithMetadata(trainId, availabilityResult.availability, retrievedAt)
+    }
 }

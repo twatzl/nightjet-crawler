@@ -6,6 +6,8 @@ import eu.twatzl.njcrawler.apiclients.OEBBNightjetBookingClient
 import eu.twatzl.njcrawler.apiclients.OEBBStationClient
 import eu.twatzl.njcrawler.data.allEuropeanSleepers
 import eu.twatzl.njcrawler.data.allNightjets
+import eu.twatzl.njcrawler.model.SimplifiedConnection
+import eu.twatzl.njcrawler.model.TrainConnection
 import eu.twatzl.njcrawler.service.*
 import eu.twatzl.njcrawler.util.getCurrentTime
 import io.ktor.client.*
@@ -18,19 +20,31 @@ import io.ktor.serialization.kotlinx.json.*
 // configuration
 const val writeCSVPerTrain = true
 const val writeOccupationCSV = true
-const val writePricingCSV = true
-
-// TODO revert to 21 after testing
-const val totalTrainsRequested = 3 // must be divisible by 3 for NJ API
+// const val writePricingCSV = true
+const val totalTrainsRequested = 21 // must be divisible by 3 for NJ API
 
 suspend fun main() {
     val httpClient = setupHttpClient()
+    val persistenceService = PersistenceService()
 
 //    getHafasIdForSingleStation(httpClient)
 //    getHafasIdsForStationList(httpClient)
 
-    getDataForNightjetsAndWriteToCsvFiles(httpClient)
-    getDataForESAndWriteToCsvFiles(httpClient)
+    val njConnections = getDataForNightjets(httpClient)
+    val esConnections = getDataForES(httpClient)
+
+    // combine connections of different operators
+    val allConnections = njConnections.plus(esConnections)
+
+    if (writeCSVPerTrain) {
+        allConnections.forEach { (train, connections) ->
+            persistenceService.writeOffersForTrainToCSV(train, connections)
+        }
+    }
+
+    if (writeOccupationCSV) {
+        persistenceService.writeCombinedOccupationCsv(allConnections)
+    }
 
     httpClient.close()
 }
@@ -67,40 +81,20 @@ private suspend fun getHafasIdsForStationList(httpClient: HttpClient) {
     println(result)
 }
 
-suspend fun getDataForESAndWriteToCsvFiles(httpClient: HttpClient) {
+suspend fun getDataForES(httpClient: HttpClient): Map<TrainConnection, List<SimplifiedConnection>> {
     // define services
     val bookingClient = EuropeanSleeperClient(httpClient)
     val esCrawlerService = ESCrawlerService(bookingClient)
-    val esPersistenceService = ESPersistenceService()
 
-    val connections = esCrawlerService.requestData(allEuropeanSleepers, totalTrainsRequested, getCurrentTime())
-
-    if (writeCSVPerTrain) {
-        connections.forEach { (train, connections) ->
-            esPersistenceService.writeESOffersForTrainToCSV(train, connections)
-        }
-    }
-    esPersistenceService.writeCombinedESOccupationCsv(connections)
-    println("finished ES ✔")
+    return esCrawlerService.requestData(allEuropeanSleepers, totalTrainsRequested, getCurrentTime())
 }
 
-suspend fun getDataForNightjetsAndWriteToCsvFiles(httpClient: HttpClient) {
+suspend fun getDataForNightjets(httpClient: HttpClient): Map<TrainConnection, List<SimplifiedConnection>> {
     // define services
     val bookingClient = OEBBNightjetBookingClient(httpClient)
-    val nightjectCrawlerService = NightjetCrawlerService(bookingClient)
-    val nightjetPersistenceService = NightjetPersistenceService()
+    val nightjetCrawlerService = NightjetCrawlerService(bookingClient)
 
-    val connections =
-        nightjectCrawlerService.requestNightjetData(allNightjets, totalTrainsRequested, getCurrentTime())
-
-    if (writeCSVPerTrain) {
-        connections.map { entry ->
-            nightjetPersistenceService.writeNightjetOffersForTrainToCSV(entry.key, entry.value)
-        }
-    }
-
-    nightjetPersistenceService.writeCombinedNightjetOccupationCsv(connections)
-    println("finished NJ ✔")
+    return nightjetCrawlerService.requestData(allNightjets, totalTrainsRequested, getCurrentTime())
 }
 
 private fun setupHttpClient() = HttpClient(CIO) {

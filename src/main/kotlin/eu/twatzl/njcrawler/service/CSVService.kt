@@ -1,26 +1,22 @@
 package eu.twatzl.njcrawler.service
 
-import eu.twatzl.njcrawler.data.COUCHETTE_OFFER_KEY
-import eu.twatzl.njcrawler.data.SEATING_OFFER_KEY
-import eu.twatzl.njcrawler.data.SLEEPER_OFFER_KEY
 import eu.twatzl.njcrawler.model.SimplifiedConnection
-import eu.twatzl.njcrawler.model.oebb.NightjetConnectionWithMetadata
 import kotlinx.datetime.Instant
 import java.io.OutputStream
 import java.nio.file.Path
 
-class NightjetCSVService {
-    fun writeCsv(outputStream: OutputStream, connections: List<NightjetConnectionWithMetadata>) {
+class CSVService {
+    fun writeCsv(outputStream: OutputStream, connections: List<SimplifiedConnection>) {
         val writer = outputStream.bufferedWriter()
         writer.write(""""trainId", "departureDate", "departure", "arrival", "departureStation", "arrivalStation", "seatingOffer", "couchetteOffer", "sleeperOffer"""")
         writer.newLine()
         connections.forEach {
-            val seatingOffer = it.bestOffers[SEATING_OFFER_KEY]?.price?.toString() ?: "x"
-            val couchetteOffer = it.bestOffers[COUCHETTE_OFFER_KEY]?.price?.toString() ?: "x"
-            val sleeperOffer = it.bestOffers[SLEEPER_OFFER_KEY]?.price?.toString() ?: "x"
+            val seatingOffer = it.seatingOffer?.toString() ?: "x"
+            val couchetteOffer = it.couchetteOffer?.toString() ?: "x"
+            val sleeperOffer = it.sleeperOffer?.toString() ?: "x"
 
             writer.write(
-                "${it.trainId}, ${it.departure}, ${it.departure}, ${it.arrival}, ${it.departureStation.name}, ${it.arrivalStation.name}, $seatingOffer, $couchetteOffer, $sleeperOffer"
+                "${it.trainId}, ${it.departure}, ${it.departure}, ${it.arrival}, ${it.departureStationName}, ${it.arrivalStationName}, $seatingOffer, $couchetteOffer, $sleeperOffer"
             )
             writer.newLine()
         }
@@ -55,5 +51,4 @@ class NightjetCSVService {
                 )
             }.toList()
     }
-
 }

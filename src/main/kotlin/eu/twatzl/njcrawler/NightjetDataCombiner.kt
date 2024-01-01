@@ -1,6 +1,6 @@
 package eu.twatzl.njcrawler
 
-import eu.twatzl.njcrawler.service.NightjetPersistenceService
+import eu.twatzl.njcrawler.service.PersistenceService
 import kotlin.io.path.Path
 
 /**
@@ -13,6 +13,6 @@ fun main() {
     val timestamp = "2023-10-18_00-16"
     val datestamp = timestamp.split('_')[0]
     val dataPath = Path(".").resolve("data").resolve(datestamp).resolve("offers")
-    NightjetPersistenceService().loadAndCombineNightjetOccupationData(dataPath, timestamp, datestamp)
+    PersistenceService().loadAndCombineOccupationData(dataPath, timestamp, datestamp)
 }
 

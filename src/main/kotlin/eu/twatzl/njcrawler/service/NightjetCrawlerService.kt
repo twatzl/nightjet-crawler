@@ -2,10 +2,10 @@ package eu.twatzl.njcrawler.service
 
 import eu.twatzl.njcrawler.apiclients.OEBBNightjetBookingClient
 import eu.twatzl.njcrawler.model.Offer
+import eu.twatzl.njcrawler.model.SimplifiedConnection
 import eu.twatzl.njcrawler.model.Station
 import eu.twatzl.njcrawler.model.TrainConnection
 import eu.twatzl.njcrawler.model.oebb.NightjetConnectionWithMetadata
-import eu.twatzl.njcrawler.model.oebb.addMetadata
 import eu.twatzl.njcrawler.util.getCurrentTime
 import eu.twatzl.njcrawler.util.getTimezone
 import kotlinx.datetime.DateTimeUnit
@@ -15,15 +15,15 @@ import kotlinx.datetime.plus
 class NightjetCrawlerService(
     private val nightjetService: OEBBNightjetBookingClient,
 ) {
-    suspend fun requestNightjetData(
+    suspend fun requestData(
         connectionSearchList: List<TrainConnection>,
         totalTrainsRequested: Int = 21,
         startTime: Instant = getCurrentTime(),
-    ): MutableMap<TrainConnection, List<NightjetConnectionWithMetadata>> {
+    ): Map<TrainConnection, List<SimplifiedConnection>> {
         val trainsPerRequest = 3 // 3 is what is on the website, it seems it does not work with more than 3
         val numRequests = totalTrainsRequested / trainsPerRequest
 
-        val offers = mutableMapOf<TrainConnection, List<NightjetConnectionWithMetadata>>()
+        val offers = mutableMapOf<TrainConnection, List<SimplifiedConnection>>()
 
         connectionSearchList.forEachIndexed { idx, nj ->
             val trainId = nj.trainId
@@ -32,7 +32,8 @@ class NightjetCrawlerService(
             println("starting requesting offers for $trainId")
 
             val offersForTrain =
-                requestNightjetOffers(trainId, fromStation, toStation, startTime, numRequests, trainsPerRequest)
+                requestOffers(trainId, fromStation, toStation, startTime, numRequests, trainsPerRequest)
+                    .map { it.toSimplified() }
                     .distinctBy { it.departure }
                     .sortedBy { it.departure }
             offers[nj] = offersForTrain
@@ -42,14 +43,14 @@ class NightjetCrawlerService(
         return offers
     }
 
-    private suspend fun requestNightjetOffers(
+    private suspend fun requestOffers(
         trainId: String,
         fromStation: Station,
         toStation: Station,
         startTime: Instant,
         numRequests: Int,
         trainsPerRequest: Int,
-    ): MutableList<NightjetConnectionWithMetadata> {
+    ): List<NightjetConnectionWithMetadata> {
         var time = startTime
         val maxRequest = 3
 
@@ -63,7 +64,7 @@ class NightjetCrawlerService(
                 getTimezone()
             )
         }
-        return offers.distinctBy { it.departure }.toMutableList()
+        return offers.distinctBy { it.departure }
     }
 
     /**
@@ -98,7 +99,7 @@ class NightjetCrawlerService(
         toStation: Station,
         startTime: Instant,
         maxRequest: Int,
-    ): MutableList<NightjetConnectionWithMetadata> {
+    ): List<NightjetConnectionWithMetadata> {
         val timestamp = startTime.epochSeconds * 1000
         val offers = mutableListOf<NightjetConnectionWithMetadata>()
 
@@ -124,7 +125,6 @@ class NightjetCrawlerService(
         }
 
         result.onFailure {
-
             println("$trainId ${fromStation.name} - ${toStation.name}: timeout for connections from $startTime")
             // on failure, we add error offers to indicate in the final csv that a timeout occurred
             repeat(maxRequest) { count ->
@@ -143,6 +143,4 @@ class NightjetCrawlerService(
 
         return offers
     }
-
-
 }

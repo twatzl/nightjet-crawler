@@ -56,7 +56,7 @@ class ESCrawlerService(
             time = time.plus(1, DateTimeUnit.DAY, getTimezone())
         }
 
-        return offers.distinctBy { it.availability.departureTime }.toMutableList()
+        return offers.distinctBy { it.availability.departureTime }
     }
 
     private suspend fun callESApiSafe(

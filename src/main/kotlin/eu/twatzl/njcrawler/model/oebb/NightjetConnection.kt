@@ -10,15 +10,15 @@ data class NightjetConnection(
     val departure: Instant,
     val arrival: Instant,
     val bestOffers: Map<String, Offer>,
-)
-
-fun NightjetConnection.addMetadata(
-    trainId: String,
-    departureStation: Station,
-    arrivalStation: Station,
-    retrievedAt: Instant,
-): NightjetConnectionWithMetadata {
-    return NightjetConnectionWithMetadata(
-        trainId, departureStation, arrivalStation, departure, arrival, bestOffers, retrievedAt
-    )
+) {
+    fun addMetadata(
+        trainId: String,
+        departureStation: Station,
+        arrivalStation: Station,
+        retrievedAt: Instant,
+    ): NightjetConnectionWithMetadata {
+        return NightjetConnectionWithMetadata(
+            trainId, departureStation, arrivalStation, departure, arrival, bestOffers, retrievedAt
+        )
+    }
 }

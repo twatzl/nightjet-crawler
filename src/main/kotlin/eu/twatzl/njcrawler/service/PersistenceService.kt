@@ -2,7 +2,6 @@ package eu.twatzl.njcrawler.service
 
 import eu.twatzl.njcrawler.model.SimplifiedConnection
 import eu.twatzl.njcrawler.model.TrainConnection
-import eu.twatzl.njcrawler.model.oebb.NightjetConnectionWithMetadata
 import eu.twatzl.njcrawler.util.getCurrentTime
 import eu.twatzl.njcrawler.util.getFormattedDate
 import eu.twatzl.njcrawler.util.getFormattedTime
@@ -16,13 +15,16 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 
-class NightjetPersistenceService {
-    private val csvService = NightjetCSVService()
+class PersistenceService {
+    private val csvService = CSVService()
     private val currentTime = getCurrentTime()
     private val formattedDate = getFormattedDate(currentTime)  // ISO datestamp (e.g. "2023-10-17")
     private val formattedTime = getFormattedTime(currentTime)  // timestamp (e.g. "2023-10-17_21-15" for time 21:15)
 
-    fun writeNightjetOffersForTrainToCSV(train: TrainConnection, connections: List<NightjetConnectionWithMetadata>) {
+    /**
+     * creates a separate CSV file for each train number
+     */
+    fun writeOffersForTrainToCSV(train: TrainConnection, connections: List<SimplifiedConnection>) {
         val outDir = Path(".").resolve("data").resolve(formattedDate).resolve("offers")
         if (!outDir.exists()) {
             outDir.createDirectories()
@@ -36,7 +38,7 @@ class NightjetPersistenceService {
     /**
      * loads connection files and combines them to a single csv file
      */
-    fun loadAndCombineNightjetOccupationData(
+    fun loadAndCombineOccupationData(
         dataPath: Path,
         timestamp: String = formattedTime,  // unless specified otherwise, use this classes timestamp
         datestamp: String = formattedDate
@@ -54,38 +56,23 @@ class NightjetPersistenceService {
             }
         }
 
-        writeCombinedNightjetOccupationCsvInternal(connections, timestamp, datestamp)
+        writeCombinedOccupationCsv(connections, timestamp, datestamp)
     }
 
-    fun writeCombinedNightjetOccupationCsv(
-        connections: MutableMap<TrainConnection, List<NightjetConnectionWithMetadata>>,
+    @JvmName("writeCombinedOccupationCsvWithFilter")
+    fun writeCombinedOccupationCsv(
+        connections: Map<TrainConnection, List<SimplifiedConnection>>,
+        timestamp: String = formattedTime,
+        date: String = formattedDate,
     ) {
-        connections.filter { it.value.isEmpty() }
-            .forEach { println("No connections found for connection ${it.key.trainId} ${it.key.fromStation.name} - ${it.key.toStation.name}") }
-
-        val simplifiedConnections = connections
-            .filterNot { it.value.isEmpty() }
-            .map { entry ->
-                entry.key.trainId to entry.value.map { it.toSimplified() }
-            }.toMap()
-
-        writeCombinedNightjetOccupationCsvInternal(simplifiedConnections)
+        writeCombinedOccupationCsv(filterConnections(connections), timestamp, date)
     }
 
-    private fun writeCombinedNightjetOccupationCsvInternal(
+    private fun writeCombinedOccupationCsv(
         connections: Map<String, List<SimplifiedConnection>>,
         timestamp: String = formattedTime,
         date: String = formattedDate,
     ) {
-        val departureDates = connections.values.map { connectionList ->
-            val departureTimes = connectionList.map { it.departure }
-            Pair(departureTimes.minOf { it }, departureTimes.maxOf { it })
-        }
-
-        val firstDepartureDate = departureDates.minOf { it.first }
-        val lastDepartureDate = departureDates.maxOf { it.second }
-            .plus(1, DateTimeUnit.DAY, getTimezone())
-
         val trains = connections.keys.sorted()
         val origins = trains.map { connections[it]?.first()?.departureStationName }
         val destinations = trains.map { connections[it]?.first()?.arrivalStationName }
@@ -102,8 +89,16 @@ class NightjetPersistenceService {
         writer.write("Destination, ${destinations.joinToString { it ?: "" }}")
         writer.newLine()
 
+        val departureDates = connections.values.map { connectionList ->
+            val departureTimes = connectionList.map { it.departure }
+            Pair(departureTimes.minOf { it }, departureTimes.maxOf { it })
+        }
+
+        val firstDepartureDate = departureDates.minOf { it.first }
+        val lastDepartureDate = departureDates.maxOf { it.second }
+
         var curDate = firstDepartureDate
-        while (curDate < lastDepartureDate) {
+        while (curDate <= lastDepartureDate) {
             val formattedDate = getFormattedDate(curDate)  // do not include departure time, just date
             val offers = trains.map { train ->
                 val conn = connections[train]?.find {
@@ -133,5 +128,18 @@ class NightjetPersistenceService {
 
         writer.flush()
         writer.close()
+    }
+
+    /**
+     * remove trains without connections from map and print corresponding message
+     * also reduces the map key to the trainId
+     */
+    private fun filterConnections(connections: Map<TrainConnection, List<SimplifiedConnection>>): Map<String, List<SimplifiedConnection>> {
+        connections.filter { it.value.isEmpty() }
+            .forEach { (train, _) ->
+                println("No connections found for train ${train.trainId} ${train.fromStation.name} - ${train.toStation.name}")
+            }
+
+        return connections.filterNot { it.value.isEmpty() }.map { it.key.trainId to it.value }.toMap()
     }
 }
