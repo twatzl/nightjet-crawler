@@ -3,7 +3,6 @@ package eu.twatzl.njcrawler.model.oebb
 import eu.twatzl.njcrawler.data.COUCHETTE_OFFER_KEY
 import eu.twatzl.njcrawler.data.SEATING_OFFER_KEY
 import eu.twatzl.njcrawler.data.SLEEPER_OFFER_KEY
-import eu.twatzl.njcrawler.model.Offer
 import eu.twatzl.njcrawler.model.SimplifiedConnection
 import eu.twatzl.njcrawler.model.Station
 import kotlinx.datetime.Instant
@@ -13,7 +12,7 @@ import kotlinx.serialization.Serializable
 data class NightjetConnection(
     val departure: Instant,
     val arrival: Instant,
-    val bestOffers: Map<String, Offer>,
+    val bestOffers: Map<String, NightjetOffer>,
 ) {
     fun toSimplified(
         trainId: String,

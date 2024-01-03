@@ -95,35 +95,16 @@ class ESCrawlerService(
             repeat(maxRequest) { count ->
                 val errorTime = startTime.plus(count, DateTimeUnit.DAY, getTimezone())
                 offers.add(
-                    getErrorOffer(
+                    SimplifiedConnection.errorOffer(
                         trainId,
                         fromStation,
                         toStation,
-                        errorTime,
+                        errorTime
                     )
                 )
             }
         }
 
         return offers
-    }
-
-    private fun getErrorOffer(
-        trainId: String,
-        fromStation: Station,
-        toStation: Station,
-        errorTime: Instant,
-    ): SimplifiedConnection {
-        return SimplifiedConnection(
-            trainId,
-            fromStation.name,
-            toStation.name,
-            errorTime,
-            errorTime.plus(1, DateTimeUnit.DAY, getTimezone()),
-            null,
-            null,
-            null,
-            getCurrentTime(),
-        )
     }
 }

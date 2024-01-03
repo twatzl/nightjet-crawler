@@ -64,25 +64,17 @@ class NightjetCrawlerService(
         return offers.distinctBy { it.departure }
     }
 
-    /**
-     * creates a connection object without values so that CSV generation can stil proceed
-     */
     private fun getTimeoutErrorOffer(
         trainId: String,
         fromStation: Station,
         toStation: Station,
         startTime: Instant,
     ): SimplifiedConnection {
-        return SimplifiedConnection(
+        return SimplifiedConnection.errorOffer(
             trainId,
-            fromStation.name,
-            toStation.name,
-            startTime,
-            startTime.plus(1, DateTimeUnit.DAY, getTimezone()),
-            null,
-            null,
-            null,
-            getCurrentTime(),
+            fromStation,
+            toStation,
+            startTime
         )
     }
 
@@ -126,7 +118,7 @@ class NightjetCrawlerService(
             repeat(maxRequest) { count ->
                 val errorTime = startTime.plus(count, DateTimeUnit.DAY, getTimezone())
                 offers.add(
-                    getTimeoutErrorOffer(
+                    SimplifiedConnection.errorOffer(
                         trainId,
                         fromStation,
                         toStation,
