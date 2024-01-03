@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PriceClass(
     val placeTypeKey: String,
-    val placeTypeIcon: Int,
     val freeSeatsCount: Int?,
     val price: Int?,
     val fareTypes: Array<FareType>,
@@ -18,7 +17,6 @@ data class PriceClass(
         other as PriceClass
 
         if (placeTypeKey != other.placeTypeKey) return false
-        if (placeTypeIcon != other.placeTypeIcon) return false
         if (freeSeatsCount != other.freeSeatsCount) return false
         if (price != other.price) return false
         if (!fareTypes.contentEquals(other.fareTypes)) return false
@@ -29,7 +27,6 @@ data class PriceClass(
 
     override fun hashCode(): Int {
         var result = placeTypeKey.hashCode()
-        result = 31 * result + placeTypeIcon
         result = 31 * result + (freeSeatsCount ?: 0)
         result = 31 * result + (price ?: 0)
         result = 31 * result + fareTypes.contentHashCode()

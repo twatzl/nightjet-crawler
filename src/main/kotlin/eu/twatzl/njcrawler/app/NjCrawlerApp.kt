@@ -8,7 +8,10 @@ import eu.twatzl.njcrawler.data.allEuropeanSleepers
 import eu.twatzl.njcrawler.data.allNightjets
 import eu.twatzl.njcrawler.model.SimplifiedConnection
 import eu.twatzl.njcrawler.model.TrainConnection
-import eu.twatzl.njcrawler.service.*
+import eu.twatzl.njcrawler.service.ESCrawlerService
+import eu.twatzl.njcrawler.service.NightjetCrawlerService
+import eu.twatzl.njcrawler.service.PersistenceService
+import eu.twatzl.njcrawler.service.StationsResolverService
 import eu.twatzl.njcrawler.util.getCurrentTime
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -16,10 +19,12 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.Json
 
 // configuration
 const val writeCSVPerTrain = true
 const val writeOccupationCSV = true
+
 // const val writePricingCSV = true
 const val totalTrainsRequested = 21 // must be divisible by 3 for NJ API
 
@@ -106,7 +111,11 @@ private fun setupHttpClient() = HttpClient(CIO) {
         sanitizeHeader { header -> header == HttpHeaders.Authorization || header == "accesstoken" }
     }
     install(ContentNegotiation) {
-        json()
+        json(Json {
+            // add more parameters from DefaultJson if needed
+            encodeDefaults = true
+            ignoreUnknownKeys = true
+        })
     }
 }
 

@@ -82,7 +82,7 @@ class ESCrawlerService(
                 offers.add(it)
                 println("$trainId: request ok for $startTime")
             } else {
-                println("$trainId ${fromStation.name} - ${toStation.name}: no connections for $startTime")
+                println("$trainId: no connections for $startTime")
             }
         }
 
