@@ -1,6 +1,7 @@
 package eu.twatzl.njcrawler.service
 
 import eu.twatzl.njcrawler.model.SimplifiedConnection
+import eu.twatzl.njcrawler.util.getCurrentTime
 import kotlinx.datetime.Instant
 import java.io.OutputStream
 import java.nio.file.Path
@@ -38,7 +39,8 @@ class CSVService {
                     Instant.parse(splitLine[3].trim()),
                     splitLine[6].toFloatOrNull(),
                     splitLine[7].toFloatOrNull(),
-                    splitLine[8].toFloatOrNull()
+                    splitLine[8].toFloatOrNull(),
+                    getCurrentTime(),
                 )
             }.toList()
     }

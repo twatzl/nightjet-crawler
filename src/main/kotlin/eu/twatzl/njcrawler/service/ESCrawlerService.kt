@@ -4,7 +4,6 @@ import eu.twatzl.njcrawler.apiclients.EuropeanSleeperClient
 import eu.twatzl.njcrawler.model.SimplifiedConnection
 import eu.twatzl.njcrawler.model.Station
 import eu.twatzl.njcrawler.model.TrainConnection
-import eu.twatzl.njcrawler.model.es.*
 import eu.twatzl.njcrawler.util.getCurrentTime
 import eu.twatzl.njcrawler.util.getTimezone
 import kotlinx.datetime.DateTimeUnit
@@ -30,7 +29,6 @@ class ESCrawlerService(
 
             offers[train] =
                 requestOffers(trainId, fromStation, toStation, startTime, totalTrainsRequested)
-                    .map { it.toSimplified() }
                     .distinctBy { it.departure }
                     .sortedBy { it.departure }
 
@@ -46,17 +44,17 @@ class ESCrawlerService(
         toStation: Station,
         startTime: Instant,
         totalTrainsRequested: Int,
-    ): List<ESConnectionWithMetadata> {
+    ): List<SimplifiedConnection> {
         var time = startTime
 
-        val offers = mutableListOf<ESConnectionWithMetadata>()
+        val offers = mutableListOf<SimplifiedConnection>()
 
         repeat(totalTrainsRequested) { _ ->
             offers.addAll(callESApiSafe(trainId, fromStation, toStation, time))
             time = time.plus(1, DateTimeUnit.DAY, getTimezone())
         }
 
-        return offers.distinctBy { it.availability.departureTime }
+        return offers.distinctBy { it.departure }
     }
 
     private suspend fun callESApiSafe(
@@ -65,10 +63,10 @@ class ESCrawlerService(
         toStation: Station,
         startTime: Instant,
         maxRequest: Int = 3,
-    ): List<ESConnectionWithMetadata> {
+    ): List<SimplifiedConnection> {
         val trainNumber = trainId.substring(2) // remove prefix "ES " for API request
         val travelDate = startTime.toLocalDateTime(getTimezone())
-        val offers = mutableListOf<ESConnectionWithMetadata>()
+        val offers = mutableListOf<SimplifiedConnection>()
 
         val result = runCatching {
             bookingClient.getOffer(
@@ -76,7 +74,7 @@ class ESCrawlerService(
                 fromStation.id,
                 toStation.id,
                 travelDate,
-            )?.addMetadata(trainId, getCurrentTime())
+            )?.toSimplified(trainId, getCurrentTime())
         }
 
         result.onSuccess {
@@ -97,12 +95,11 @@ class ESCrawlerService(
             repeat(maxRequest) { count ->
                 val errorTime = startTime.plus(count, DateTimeUnit.DAY, getTimezone())
                 offers.add(
-                    getTimeoutErrorOffer(
+                    getErrorOffer(
                         trainId,
                         fromStation,
                         toStation,
                         errorTime,
-                        it
                     )
                 )
             }
@@ -111,43 +108,22 @@ class ESCrawlerService(
         return offers
     }
 
-    /**
-     * currently the best way to make timeouts visible in the resulting csv is to create an offer that contains
-     * the text 'timeout'
-     */
-    private fun getTimeoutErrorOffer(
+    private fun getErrorOffer(
         trainId: String,
         fromStation: Station,
         toStation: Station,
         errorTime: Instant,
-        throwable: Throwable,
-    ): ESConnectionWithMetadata {
-        val message = throwable.message ?: "no message"
-
-        return ESConnectionWithMetadata(
+    ): SimplifiedConnection {
+        return SimplifiedConnection(
             trainId,
-            Availability(
-                "",
-                "",
-                "",
-                fromStation.id,
-                errorTime.toLocalDateTime(getTimezone()),
-                "",
-                toStation.id,
-                errorTime.plus(1, DateTimeUnit.DAY, getTimezone()).toLocalDateTime(getTimezone()),
-                arrayOf(
-                    PriceClass(
-                        "timeout",
-                        0,
-                        0,
-                        0,
-                        arrayOf(FareType(message, false, 0, 0)),
-                        false
-                    )
-                ),
-                emptyArray(),
-            ),
-            getCurrentTime()
+            fromStation.name,
+            toStation.name,
+            errorTime,
+            errorTime.plus(1, DateTimeUnit.DAY, getTimezone()),
+            null,
+            null,
+            null,
+            getCurrentTime(),
         )
     }
 }

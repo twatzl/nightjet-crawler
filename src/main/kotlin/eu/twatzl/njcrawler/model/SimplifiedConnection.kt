@@ -14,4 +14,5 @@ data class SimplifiedConnection(
     val seatingOffer: Float?,
     val couchetteOffer: Float?,
     val sleeperOffer: Float?,
+    val retrievedAt: Instant,
 )

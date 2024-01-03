@@ -1,11 +1,9 @@
 package eu.twatzl.njcrawler.service
 
 import eu.twatzl.njcrawler.apiclients.OEBBNightjetBookingClient
-import eu.twatzl.njcrawler.model.Offer
 import eu.twatzl.njcrawler.model.SimplifiedConnection
 import eu.twatzl.njcrawler.model.Station
 import eu.twatzl.njcrawler.model.TrainConnection
-import eu.twatzl.njcrawler.model.oebb.NightjetConnectionWithMetadata
 import eu.twatzl.njcrawler.util.getCurrentTime
 import eu.twatzl.njcrawler.util.getTimezone
 import kotlinx.datetime.DateTimeUnit
@@ -33,7 +31,6 @@ class NightjetCrawlerService(
 
             val offersForTrain =
                 requestOffers(trainId, fromStation, toStation, startTime, numRequests, trainsPerRequest)
-                    .map { it.toSimplified() }
                     .distinctBy { it.departure }
                     .sortedBy { it.departure }
             offers[nj] = offersForTrain
@@ -50,11 +47,11 @@ class NightjetCrawlerService(
         startTime: Instant,
         numRequests: Int,
         trainsPerRequest: Int,
-    ): List<NightjetConnectionWithMetadata> {
+    ): List<SimplifiedConnection> {
         var time = startTime
         val maxRequest = 3
 
-        val offers = mutableListOf<NightjetConnectionWithMetadata>()
+        val offers = mutableListOf<SimplifiedConnection>()
 
         // TODO: not every train runs every day, so with the overlap we get duplicate data. add that feature
         repeat(numRequests) {
@@ -68,27 +65,23 @@ class NightjetCrawlerService(
     }
 
     /**
-     * currently the best way to make timeouts visible in the resulting csv is to create an offer that contains
-     * the text 'timeout'
+     * creates a connection object without values so that CSV generation can stil proceed
      */
     private fun getTimeoutErrorOffer(
         trainId: String,
         fromStation: Station,
         toStation: Station,
         startTime: Instant,
-        throwable: Throwable,
-    ): NightjetConnectionWithMetadata {
-        val message = throwable.message ?: "no message"
-
-        return NightjetConnectionWithMetadata(
+    ): SimplifiedConnection {
+        return SimplifiedConnection(
             trainId,
-            fromStation,
-            toStation,
+            fromStation.name,
+            toStation.name,
             startTime,
             startTime.plus(1, DateTimeUnit.DAY, getTimezone()),
-            bestOffers = mapOf(
-                "timeout" to Offer(message, 0.0f)
-            ),
+            null,
+            null,
+            null,
             getCurrentTime(),
         )
     }
@@ -99,9 +92,9 @@ class NightjetCrawlerService(
         toStation: Station,
         startTime: Instant,
         maxRequest: Int,
-    ): List<NightjetConnectionWithMetadata> {
+    ): List<SimplifiedConnection> {
         val timestamp = startTime.epochSeconds * 1000
-        val offers = mutableListOf<NightjetConnectionWithMetadata>()
+        val offers = mutableListOf<SimplifiedConnection>()
 
         val result = runCatching {
             nightjetService.getOffer(
@@ -112,7 +105,7 @@ class NightjetCrawlerService(
                 numberResults = maxRequest
             )
                 .filterNotNull()
-                .map { it.addMetadata(trainId, fromStation, toStation, getCurrentTime()) }
+                .map { it.toSimplified(trainId, fromStation, toStation, getCurrentTime()) }
         }
 
         result.onSuccess {
@@ -126,6 +119,9 @@ class NightjetCrawlerService(
 
         result.onFailure {
             println("$trainId ${fromStation.name} - ${toStation.name}: timeout for connections from $startTime")
+            println(it.cause)
+            println(it.message)
+
             // on failure, we add error offers to indicate in the final csv that a timeout occurred
             repeat(maxRequest) { count ->
                 val errorTime = startTime.plus(count, DateTimeUnit.DAY, getTimezone())
@@ -135,7 +131,6 @@ class NightjetCrawlerService(
                         fromStation,
                         toStation,
                         errorTime,
-                        it
                     )
                 )
             }
