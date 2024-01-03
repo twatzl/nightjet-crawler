@@ -10,9 +10,7 @@ import kotlinx.datetime.Clock
 class OEBBNightjetBookingClient(
     private val httpClient: HttpClient,
 ) {
-    companion object {
-        val endpoint = "https://www.nightjet.com/nj-booking"
-    }
+    private val endpoint = "https://www.nightjet.com/nj-booking"
 
     /**
      * query nightjet offers from the nightjet.com platform

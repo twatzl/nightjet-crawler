@@ -1,13 +1,12 @@
 package eu.twatzl.njcrawler.util
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
 
 fun getTimezone() = TimeZone.currentSystemDefault()
 
 fun getCurrentTime() = Clock.System.now()
+
+fun getCurrentDay() = getCurrentTime().toLocalDateTime(getTimezone()).date
 
 fun getFormattedTime(i: Instant): String {
     val t = i.toLocalDateTime(getTimezone())

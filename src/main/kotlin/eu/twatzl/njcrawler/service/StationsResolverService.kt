@@ -2,7 +2,7 @@ package eu.twatzl.njcrawler.service
 
 import eu.twatzl.njcrawler.apiclients.OEBBAccessTokenClient
 import eu.twatzl.njcrawler.apiclients.OEBBStationClient
-import eu.twatzl.njcrawler.model.StationQueryResult
+import eu.twatzl.njcrawler.model.oebb.StationQueryResult
 
 /**
  * takes in station names, returns a list of possible stations with their hafas ids
