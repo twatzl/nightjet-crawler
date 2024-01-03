@@ -24,8 +24,8 @@ import kotlinx.serialization.json.Json
 // configuration
 const val writeCSVPerTrain = true
 const val writeOccupationCSV = true
-
 // const val writePricingCSV = true
+
 const val totalTrainsRequested = 21 // must be divisible by 3 for NJ API
 
 suspend fun main() {

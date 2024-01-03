@@ -24,6 +24,20 @@ class CSVService {
         writer.flush()
     }
 
+    /**
+     * converts CSV file to list of SimplifiedConnection
+     *
+     * line items are:
+     * 0: trainId
+     * 1: departureDate
+     * 2: departure (Instant)
+     * 3: arrival (Instant)
+     * 4: departureStation (name)
+     * 5: arrivalStation (name)
+     * 6: seatingOffer (price)
+     * 7: couchetteOffer (price)
+     * 8: sleeperOffer (price)
+     */
     fun readCsv(path: Path): List<SimplifiedConnection> {
         val reader = path.toFile().bufferedReader()
         reader.readLine() // read header

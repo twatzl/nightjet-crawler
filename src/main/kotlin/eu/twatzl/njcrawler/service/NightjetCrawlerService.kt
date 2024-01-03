@@ -64,20 +64,6 @@ class NightjetCrawlerService(
         return offers.distinctBy { it.departure }
     }
 
-    private fun getTimeoutErrorOffer(
-        trainId: String,
-        fromStation: Station,
-        toStation: Station,
-        startTime: Instant,
-    ): SimplifiedConnection {
-        return SimplifiedConnection.errorOffer(
-            trainId,
-            fromStation,
-            toStation,
-            startTime
-        )
-    }
-
     private suspend fun callNightjetApiSafe(
         trainId: String,
         fromStation: Station,

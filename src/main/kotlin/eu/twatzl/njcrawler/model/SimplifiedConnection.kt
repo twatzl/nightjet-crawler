@@ -21,7 +21,6 @@ data class SimplifiedConnection(
     val retrievedAt: Instant,
 ) {
     companion object {
-
         /**
          * creates a connection object without offer values so that CSV generation can stil proceed
          */
