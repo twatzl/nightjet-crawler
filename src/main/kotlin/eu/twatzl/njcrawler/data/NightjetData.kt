@@ -3,11 +3,11 @@ package eu.twatzl.njcrawler.data
 import eu.twatzl.njcrawler.model.Station
 import eu.twatzl.njcrawler.model.TrainConnection
 
-val wien = Station("Wien Hbf", "1290401") // 1190100
+val wien = Station("WIEN", "1190100")
 val innsbruck = Station("Innsbruck Hbf", "8100108")
-val bregenz = Station("Bregenz", "1280202")
-val munich = Station("München Hbf", "8000261")
-val zurich = Station("Zürich HB", "8503000")
+val bregenz = Station("Bregenz", "8100090")
+val munich = Station("MÜNCHEN", "8081998")
+val zurich = Station("ZÜRICH", "8596008")
 val parisEst = Station("Paris Est", "8700011")
 val praha = Station("Praha hl.n.", "5400014")
 val amsterdam = Station("Amsterdam Centraal", "8400058")
@@ -16,21 +16,18 @@ val brussel = Station("Brüssel Midi", "8800004")
 val rom = Station("Roma Termini", "8300263")
 val laSpezia = Station("La Spezia Centrale", "8300156")
 val livorno = Station("Livorno Centrale", "8300157")
-val venedig = Station("Venedig Santa Lucia", "8396008") // 8396008
+val venedig = Station("Venedig Santa Lucia", "8396008")
 val ancona = Station("Ancona", "8300186")
 val zagreb = Station("Zagreb Glavni kolodvor", "7800020")
 val rijeka = Station("Rijeka", "7800013")
-val budapest = Station("Budapest-Keleti", "5500003")
-val bratislava = Station("Bratislava hl.st.", "5600207")
-val warschau = Station("Warszawa Wschodnia", "5100066")
+val budapest = Station("BUDAPEST", "5596001")
+val bratislava = Station("BRATISLAVA", "5696001")
+val warschau = Station("WARSZAWA", "5196003")
 val stuttgart = Station("Stuttgart Hbf", "8000096")
 val split = Station("Split", "7800016")
 val graz = Station("Graz Hbf", "8100173")
 val kiew = Station("Kiew Pass", "2200005")
-val berlin = Station(
-    "BERLIN",
-    "8096003"
-) // for Berlin we use the POI rather than a specific station, because it might change between Hbf and Lichtenberg
+val berlin = Station("BERLIN", "8096003")
 
 // ************************************************
 // ** NJ AB WIEN ÖSTERREICH WESTEN
@@ -42,7 +39,6 @@ val nj468 =
     TrainConnection("NJ 468", wien, parisEst) //  Wien – Linz – Salzburg – München Ost – Karlsruhe – Strasbourg – Paris
 val nj40420 = TrainConnection("NJ 40420", innsbruck, hamburg) // Innsbruck – München – Nürnberg – Hamburg
 val nj420 = TrainConnection("NJ 420", innsbruck, amsterdam) // Innsbruck – München – Nürnberg – Amsterdam
-val nj424 = TrainConnection("NJ 424", innsbruck, brussel) // Innsbruck – München – Nürnberg – Brüssel  Nein
 
 val njATnachWest = listOf(
     nj446,
@@ -50,7 +46,6 @@ val njATnachWest = listOf(
     nj468,
     nj420,
     nj40420,
-    nj424
 )
 
 // ************************************************
@@ -83,28 +78,22 @@ val njATVonWest = listOf(
 
 val nj490 = TrainConnection("NJ 490", wien, hamburg) //  Wien – Linz – Nürnberg – Hamburg
 val nj40490 = TrainConnection("NJ 40490", wien, amsterdam) //  Wien – Linz – Nürnberg – Amsterdam
-val nj50490 = TrainConnection(
-    "NJ 50490",
+val nj40468 = TrainConnection(
+    "NJ 40468",
     wien,
     brussel
-) //  Wien – Linz – Nürnberg – Frankfurt – Bonn – Aachen – Lüttich – Brüssel  Nein
+) //  Wien – Linz – Nürnberg – Frankfurt – Bonn – Aachen – Lüttich – Brüssel
 val nj456 = TrainConnection(
     "NJ 456",
     graz,
     berlin
-)   //     Graz – Wien – Břeclav – Bohumín – Racibórz – Wrocław – Frankfurt/Oder – Berlin
-val en40456 = TrainConnection(
-    "EN 40456",
-    wien,
-    warschau
-) //   PKP (Nightjet Partner)  Wien – Ostrava – Bohumín – Krakau – Warschau  Nein
+)   //     Graz – Wien – Břeclav – Praha - Dresden – Berlin
 
 val njATNachNord = listOf(
     nj490,
     nj40490,
-    nj50490,
+    nj40468,
     nj456,
-    en40456,
 )
 
 // ************************************************
@@ -114,30 +103,24 @@ val njATNachNord = listOf(
 
 val nj40421 = TrainConnection("NJ 40421", amsterdam, wien)   //  Wien – Linz – Nürnberg – Amsterdam
 val nj491 = TrainConnection("NJ 491", hamburg, wien)     //  Wien – Linz – Nürnberg – Hamburg
-val nj425 = TrainConnection("NJ 425", brussel, wien)
+val nj40425 = TrainConnection("NJ 40425", brussel, wien)
 val nj457 = TrainConnection(
     "NJ 457",
     berlin,
     graz
-)      //  Graz – Wien – Břeclav – Bohumín – Racibórz – Wrocław – Frankfurt/Oder – Berlin
+)      //  Graz – Wien – Břeclav – Praha - Dresden – Berlin
 val en50237 = TrainConnection(
     "EN 50237",
     stuttgart,
     wien
 )    //  MÁV (Nightjet Partner)  Budapest – Wien – Linz – Salzburg – München Ost – Stuttgart  Nein
-val en407 = TrainConnection(
-    "EN 407",
-    warschau,
-    wien
-)   //  PKP (Nightjet Partner)  Wien – Ostrava – Bohumín – Krakau – Warschau  Nein
 
 val njATVonNord = listOf(
     nj40421,
     nj491,
-    nj425,
+    nj40425,
     nj457,
     en50237,
-    en407
 )
 
 // ************************************************
@@ -199,6 +182,7 @@ val en40465 = TrainConnection(
     zurich,
     zagreb
 ) // HŽ (Nightjet Partner)  Zagreb – Ljubljana – Villach – Feldkirch – Zürich  Nein
+val en40459 = TrainConnection("EN 40459", zurich, praha) // Zürich - Karlsruhe - Frankfurt - Leipzig - Prag
 
 val njAbCH = listOf(
     en40462,
@@ -208,6 +192,7 @@ val njAbCH = listOf(
     nj409,
     nj470,
     en40465,
+    en40459,
 )
 
 // ************************************************
@@ -228,6 +213,7 @@ val en50466 = TrainConnection(
     praha,
     zurich
 ) // ČD (,Nightjet Partner)  Zürich – Feldkirch – Salzburg – Linz – Prag  Nein
+val en40458 = TrainConnection("EN 40458", praha, zurich) // Zürich - Karlsruhe - Frankfurt - Leipzig - Prag
 
 val njNachCH = listOf(
     nj408,
@@ -236,6 +222,7 @@ val njNachCH = listOf(
     en40414,
     nj403,
     en50466,
+    en40458,
 )
 
 // ************************************************
@@ -265,7 +252,7 @@ val en1153 = TrainConnection(
     "EN 1153",
     bratislava,
     split
-) // Stuttgart – München Ost – Salzburg – Villach – Ljubljana – Opatija – Rijeka
+) // Bratislava - Wien - Graz - Maribor - Zagreb - Split
 val en40476 = TrainConnection(
     "EN 40476",
     budapest,
@@ -287,7 +274,7 @@ val en1152 = TrainConnection(
     "EN 1152",
     split,
     bratislava
-) // Stuttgart – München Ost – Salzburg – Villach – Ljubljana – Opatija – Rijeka
+) // Bratislava - Wien - Graz - Maribor - Zagreb - Split
 val en40457 = TrainConnection(
     "EN 40457",
     berlin,
@@ -308,6 +295,21 @@ val nj236 = TrainConnection(
     stuttgart
 ) // Stuttgart – München Ost – Salzburg – Villach – Udine – Treviso – Venedig
 
+val nj424 = TrainConnection("NJ 424", berlin, brussel) // Berlin – Frankfurt - Köln - Brüssel
+val nj425 = TrainConnection("NJ 425", brussel, berlin) // Berlin – Frankfurt - Köln - Brüssel
+val nj40424 = TrainConnection("NJ 40424", berlin, parisEst) // Berlin - Erfurt - Frankfurt - Strasbourg - Paris
+val nj40469 = TrainConnection("NJ 40469", parisEst, berlin) // Berlin - Erfurt - Frankfurt - Strasbourg - Paris
+val en406 = TrainConnection(
+    "EN 406",
+    munich,
+    warschau
+) //   PKP (Nightjet Partner) München - Salzburg - Wien – Ostrava – Bohumín – Krakau – Warschau
+val en407 = TrainConnection(
+    "EN 407",
+    warschau,
+    munich
+)   //  PKP (Nightjet Partner)  München - Salzburg - Wien – Ostrava – Bohumín – Krakau – Warschau
+
 val njRest = listOf(
     nj40295,
     nj237,
@@ -321,8 +323,15 @@ val njRest = listOf(
     en1152,
     en40457,
     nj294,
+    nj295,
     nj40235,
     nj236,
+    nj424,
+    nj425,
+    nj40424,
+    nj40469,
+    en406,
+    en407,
 )
 
 // ÖBB does not sell tickets for these connections...
