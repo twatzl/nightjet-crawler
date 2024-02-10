@@ -1,11 +1,16 @@
 package eu.twatzl.njcrawler.app
 
+import eu.twatzl.njcrawler.apiclients.EuropeanSleeperClient
 import eu.twatzl.njcrawler.apiclients.OEBBAccessTokenClient
 import eu.twatzl.njcrawler.apiclients.OEBBNightjetBookingClient
 import eu.twatzl.njcrawler.apiclients.OEBBStationClient
+import eu.twatzl.njcrawler.data.allEuropeanSleepers
 import eu.twatzl.njcrawler.data.allNightjets
+import eu.twatzl.njcrawler.model.SimplifiedConnection
+import eu.twatzl.njcrawler.model.TrainConnection
+import eu.twatzl.njcrawler.service.ESCrawlerService
 import eu.twatzl.njcrawler.service.NightjetCrawlerService
-import eu.twatzl.njcrawler.service.NightjetPersistenceService
+import eu.twatzl.njcrawler.service.PersistenceService
 import eu.twatzl.njcrawler.service.StationsResolverService
 import eu.twatzl.njcrawler.util.getCurrentTime
 import io.ktor.client.*
@@ -14,21 +19,37 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.Json
 
 // configuration
+const val writeCSVPerTrain = true
+const val writeOccupationCSV = true
+// const val writePricingCSV = true
 
-val requestedTrains = allNightjets
-val writeCSVPerTrain = true
-val writeOccupationCSV = true
-val writePricingCSV = true
+const val totalTrainsRequested = 21 // must be divisible by 3 for NJ API
 
 suspend fun main() {
     val httpClient = setupHttpClient()
+    val persistenceService = PersistenceService()
 
 //    getHafasIdForSingleStation(httpClient)
 //    getHafasIdsForStationList(httpClient)
 
-    getDataForNightjetsAndWriteToCsvFiles(httpClient)
+    val njConnections = getDataForNightjets(httpClient)
+    val esConnections = getDataForES(httpClient)
+
+    // combine connections of different operators
+    val allConnections = njConnections + esConnections
+
+    if (writeCSVPerTrain) {
+        allConnections.forEach { (train, connections) ->
+            persistenceService.writeOffersForTrainToCSV(train, connections)
+        }
+    }
+
+    if (writeOccupationCSV) {
+        persistenceService.writeCombinedOccupationCsv(allConnections)
+    }
 
     httpClient.close()
 }
@@ -65,26 +86,20 @@ private suspend fun getHafasIdsForStationList(httpClient: HttpClient) {
     println(result)
 }
 
-suspend fun getDataForNightjetsAndWriteToCsvFiles(httpClient: HttpClient) {
-    // configuration
-    val trains = allNightjets
-    val startTime = getCurrentTime()
-    val totalTrainsRequested = 21 // must be divisible by 3
+suspend fun getDataForES(httpClient: HttpClient): Map<TrainConnection, List<SimplifiedConnection>> {
+    // define services
+    val bookingClient = EuropeanSleeperClient(httpClient)
+    val esCrawlerService = ESCrawlerService(bookingClient)
 
+    return esCrawlerService.requestData(allEuropeanSleepers, totalTrainsRequested, getCurrentTime())
+}
+
+suspend fun getDataForNightjets(httpClient: HttpClient): Map<TrainConnection, List<SimplifiedConnection>> {
     // define services
     val bookingClient = OEBBNightjetBookingClient(httpClient)
-    val nightjectCrawlerService = NightjetCrawlerService(bookingClient)
-    val nightjetPersistenceService = NightjetPersistenceService()
+    val nightjetCrawlerService = NightjetCrawlerService(bookingClient)
 
-    val connections =
-        nightjectCrawlerService.requestNightjetData(trains, totalTrainsRequested = totalTrainsRequested, startTime)
-
-    connections.map { entry ->
-        nightjetPersistenceService.writeNightjetOffersForTrainToCSV(entry.key, entry.value)
-    }
-
-    nightjetPersistenceService.writeCombinedNightjetOccupationCsv(connections)
-    println("finished")
+    return nightjetCrawlerService.requestData(allNightjets, totalTrainsRequested, getCurrentTime())
 }
 
 private fun setupHttpClient() = HttpClient(CIO) {
@@ -96,7 +111,11 @@ private fun setupHttpClient() = HttpClient(CIO) {
         sanitizeHeader { header -> header == HttpHeaders.Authorization || header == "accesstoken" }
     }
     install(ContentNegotiation) {
-        json()
+        json(Json {
+            // add more parameters from DefaultJson if needed
+            encodeDefaults = true
+            ignoreUnknownKeys = true
+        })
     }
 }
 
